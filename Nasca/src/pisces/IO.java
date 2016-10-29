@@ -71,9 +71,7 @@ public class IO extends HttpServlet {
 			Map<String, String> links = new HashMap<>();
 			
 			String[] nodeStrings = request.getParameter("parameter").split("/");
-			
-			//******************************
-			
+
 			String conditionIN = "";
 			for(int i=0 ; i < nodeStrings.length ; i++){
 				//名前空間の場合はスキップ

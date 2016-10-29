@@ -50,17 +50,9 @@ public class HelloWorld extends HttpServlet {
 			con = ds.getConnection();
 			 
 			// SQLの実行
-//			pstmt = con.prepareStatement("select 'TABLE' OBJTID,'#' PARENT,'TABLE' OBJTNM,'TABLE' OBJTTP from dual union all "
-//					+ "select 'PROCEDURE' OBJTID,'#' PARENT,'PROCEDURE' OBJTNM,'PROCEDURE' OBJTTP from dual union all "
-//					+ "select OBJTID,OBJTTP PARENT,OBJTNM,OBJTTP from M_OBJECT");
 			pstmt = con.prepareStatement("select OBJTID,OBJTNM,OBJTTP from M_OBJECT");
-//			pstmt = con.prepareStatement("select distinct nodeid from (select SRCNID NODEID from m_objtprnt union all select DESNID NODEID from m_objtprnt) sub");
 			rs = pstmt.executeQuery();
-			 
-			//rs.first();
-			//request.setAttribute("ID", rs.getString("ID"));
-			//equest.setAttribute("TITLE", rs.getString("TITLE"));
-		      
+			
 			// JsonFactoryの生成
 			JsonFactory jsonFactory = new JsonFactory();
 			// JsonGeneratorの取得
