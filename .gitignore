@@ -1,0 +1,5 @@
+##ここに無視したいファイルの条件などを記入する。
+*.class
+.metadata/
+.recommenders/
+RemoteSystemsTempFiles/

@@ -271,12 +271,6 @@ function draw(){
 	var img = svg.selectAll("image").data(nodes, function(d,i){return d.id;});
 	img.enter().append("image")
 	.attr("xlink:href", function(d){
-//		console.log(d);
-//		var result = "./img/database.svg";
-//		if(d.type === "PROCEDURE"){
-//			result = "./img/program_red.svg";
-//		}
-//		return result;
 		return "./img/" + d["svg-file"];
 	}) //ノード用画像の設定
 	.attr("x", "-16px")
