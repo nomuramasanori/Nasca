@@ -311,16 +311,10 @@ function draw(){
 	})
 	.on("mousedown", function(d){
 		d3.event.stopPropagation();
-		dragflg = false;
-	})
-	.on("mousemove", function(d){
-		dragflg = true;
 	})
 	.on("click", function(d){
 		d3.event.stopPropagation();
-		if(!dragflg){
-			$('#jstree_demo_div').jstree('select_node', d.id);
-		}
+		$('#jstree_demo_div').jstree('select_node', d.id);
 	})
 	.call(force.drag);
 	img.exit().remove();
