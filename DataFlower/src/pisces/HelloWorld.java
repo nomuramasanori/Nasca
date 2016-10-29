@@ -68,60 +68,7 @@ public class HelloWorld extends HttpServlet {
 			
 			//オブジェクトの書き込み
 			generator.writeStartArray();
-			while(rs.next()){
-				
-				
-				//********************************************
-//				String str = rs.getString("nodeid");
-//				String[] objects = str.split("\\.");
-//				
-//				//IDを"."で分割しツリー用のデータを作成します。
-//				for (int i = 0; i < objects.length; i++){
-//					
-//					String id = "";
-//					String parent = null;
-//					String text = null;
-//					String type = null;
-//					
-//					//IO情報の末端IDからすべての階層のIDを作成します。
-//					//例えば末端ID「a.b.c.d」であれば、「a」、「a.b」、「a.b.c」、「a.b.c.d」を作成します。
-//					for(int j = 0; j <= i; j++){
-//						id = id + objects[j] + ".";
-//					}
-//					int last = id.lastIndexOf(".");
-//					id = id.substring(0, last);
-//					
-//					if(i == 0){
-//						parent = "#";
-//					}
-//					else {
-//						parent = objects[i-1];
-//					}
-//					
-//					rs2 = con.prepareStatement("select * from m_object where OBJTID = '" + id + "'").executeQuery();
-//					
-//					while(rs2.next()){
-//						text = rs2.getString("OBJTNM");
-//						type = rs2.getString("OBJTTP");
-//					}
-//					rs2.close();
-//					
-//					generator.writeStartObject();
-//					generator.writeStringField("id",id);
-//					generator.writeStringField("parent", parent);
-//					generator.writeStringField("text", text);
-//					generator.writeStringField("type", type);
-//					generator.writeEndObject();
-//				}
-				//********************************************
-				
-//				generator.writeStartObject();
-//				generator.writeStringField("id",rs.getString("OBJTID"));
-//				generator.writeStringField("parent", rs.getString("PARENT"));
-//				generator.writeStringField("text", rs.getString("OBJTNM"));
-//				generator.writeStringField("type", rs.getString("OBJTTP"));
-//				generator.writeEndObject();
-				
+			while(rs.next()){				
 				String parent = "";
 				String[] idStrings = rs.getString("OBJTID").split("\\.");
 				
