@@ -1,0 +1,28 @@
+@CHARSET "UTF-8";
+
+* {
+	margin:0;
+	padding:0;
+}
+
+html, body {
+	height:100%;
+	width:100%;
+	overflow-x:hidden;
+	overflow-y:hidden;
+}
+
+#nodeList{
+	width:200px;
+	height:100%;
+	float:left;
+	background-color:#f0f8ff;
+	overflow-x:auto;
+	overflow-y:auto;
+}
+
+#drawingPaper{
+/* 	margin-left:150px; */
+	height:100%;
+	background-color:white;
+}

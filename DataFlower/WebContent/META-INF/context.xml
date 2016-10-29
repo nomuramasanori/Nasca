@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration>
+<Context>
+  <Resource
+      name="jdbc/test"
+      auth="Container"
+      type="javax.sql.DataSource"
+      driverClassName="com.mysql.jdbc.Driver"
+      url="jdbc:mysql://localhost:3306/TEST"
+	  connectionProperties="autoReconnect=true;verifyServerCertificate=false;useSSL=false;requireSSL=false"
+	  username="root"
+      password="root"
+	  useUnicode="true"
+	  characterEncoding="UTF-8"
+      validationQuery="select 1"/>
+ </Context>
