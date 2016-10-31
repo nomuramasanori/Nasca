@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sample.mybatis">
+  <resultMap id="dataFlowNode" type="pisces.DataFlowNode">
+    <id property="id" column="OBJTID" />
+    <result property="name" column="OBJTNM" />
+    <result property="type" column="OBJTTP" />
+    <result property="remark" column="REMARK" />
+    <result property="svgFile" column="SVGFLE" />
+  </resultMap>
+  <select id="selectTest2" resultMap="dataFlowNode">
+    select
+    	OBJ.OBJTID,
+    	OBJ.OBJTNM,
+    	OBJ.OBJTTP,
+    	OBJ.REMARK,
+    	OTP.SVGFLE
+    from
+    	M_OBJECT OBJ INNER JOIN
+    	M_OBJTTYPE OTP ON
+    		OBJ.OBJTTP = OTP.OBJTTP
+    where
+    	OBJ.OBJTID = #{objectID}
+  </select>
+</mapper>
