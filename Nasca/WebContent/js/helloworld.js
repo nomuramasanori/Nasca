@@ -20,10 +20,6 @@ $(function(){
 			//ツリー生成
 			$("#jstree_demo_div").jstree({
 				"core" : {"data" : data},
-//			    "types" : {
-//			        "default" : {"icon" : "./img/database.svg"},
-//			        "demo" : {"icon" : "./img/program_red.svg"}
-//			      },
 			    "plugins" : [ "checkbox", "sort","types" ]
 			});
 		}
@@ -40,34 +36,26 @@ $(function(){
 		} 
 		
 		var param = nodesString.slice(0,-1);
-		function test(){
-			return $.ajax({
-				type: "POST",
-				url: "IO",
-				dataType: "json",
-				data : {parameter : param},
-				success: function(data, textStatus){
-					deserializeJson(data);
-				}
-			});	
-		}
 		
-		test().done(function(result){
-			draw();
+		$.ajax({
+			type: "POST",
+			url: "IO",
+			dataType: "json",
+			data : {parameter : param},
+			success: function(data, textStatus){
+				deserializeJson(data);
+				draw();
+			}
 		});
-		//draw();
 	});
 });
 
 /*********************************************************************************/
 /*TODO:リンクのソースとターゲットをインデックスではなくオブジェクト参照に変更*/
-var w = 0;
-var h = 0;
 var svg;
 var nodes = [],    //ノードを収める配列
 links = [];    //ノード間のリンク情報を収める配列
 comments = [];
-var dragflg;
 
 var colors = [
       		[255,255,0], [0,255,0], [0,0,255], [255,64,0],
@@ -79,7 +67,6 @@ var colors = [
 var force = d3.layout.force()
 .nodes(nodes)
 .links(links)
-.size([w, h])
 .linkDistance(60)
 .charge(-8000)
 .gravity(0.4)
