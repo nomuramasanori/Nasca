@@ -6,7 +6,7 @@ nasca.nodeTree = nasca.nodeTree || {};
 
 nasca.nodeTree = (function(){
 	//初期化処理
-	$(function(){
+	var initialize = function(){
 		//ツリーデータ取得
 		$.ajax({
 			type: "GET",
@@ -43,5 +43,9 @@ nasca.nodeTree = (function(){
 				}
 			});
 		});
-	});
+	};
+	
+	return{
+		initialize : initialize
+	};
 })();

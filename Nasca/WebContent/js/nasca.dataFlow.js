@@ -18,7 +18,7 @@ nasca.dataFlow = (function(){
 	];
 	
 	//初期化処理
-	$(function(){		
+	var initialize = function(){
 		force = d3.layout.force()
 			.size([nasca.frame.wMain, nasca.frame.hMain])
 			.nodes(nodes)
@@ -85,7 +85,7 @@ nasca.dataFlow = (function(){
 			});
 
 		svg.append("svg:g");
-	});
+	};
 	
 	var draw = function(json){
 		//d3にバインドされているデータを更新します。
@@ -313,6 +313,7 @@ nasca.dataFlow = (function(){
 	};
 	
 	return{
+		initialize : initialize,
 		draw : draw
 	};
 })();

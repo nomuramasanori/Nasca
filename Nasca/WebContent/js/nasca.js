@@ -5,7 +5,6 @@
 var nasca = nasca || {};
 nasca.frame = nasca.frame || {};
 
-//初期化処理
 $(function(){
 	//画面のフレーム情報
 	nasca.frame = (function(){
@@ -14,7 +13,7 @@ $(function(){
 		var wNodeList = $("#nodeList").width();    
 		var wMain = wWindow - wNodeList -1;
 		var hMain = hWindow;
-	
+		
 		return {
 			wWindow: wWindow,
 			hWindow: hWindow,
@@ -23,9 +22,12 @@ $(function(){
 			hMain: hMain
 		};
 	})();
-});
 
-//画面リサイズイベント登録
-$(window).resize(function(){
-	$("#drawingPaper").attr("width", nasca.frame.wMain);
+	nasca.nodeTree.initialize();
+	nasca.dataFlow.initialize();
+	
+	//画面リサイズイベント登録
+	$(window).resize(function(){
+		$("#drawingPaper").attr("width", nasca.frame.wMain);
+	});
 });
