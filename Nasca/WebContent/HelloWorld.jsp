@@ -12,7 +12,6 @@
 <script type="text/javascript" src="js/jstree.min.js" charset="utf-8"></script>
 <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
 <script type="text/javascript" src="js/nasca.js" charset="utf-8"></script>
-<script type="text/javascript" src="js/nasca.frame.js" charset="utf-8"></script>
 <script type="text/javascript" src="js/nasca.nodeTree.js" charset="utf-8"></script>
 <script type="text/javascript" src="js/nasca.dataFlow.js" charset="utf-8"></script>
 <link rel="stylesheet" href="js/themes/default/style.min.css" />

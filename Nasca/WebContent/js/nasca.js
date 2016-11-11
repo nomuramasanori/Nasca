@@ -22,9 +22,6 @@ $(function(){
 			hMain: hMain
 		};
 	})();
-
-	nasca.nodeTree.initialize();
-	nasca.dataFlow.initialize();
 	
 	//画面リサイズイベント登録
 	$(window).resize(function(){
