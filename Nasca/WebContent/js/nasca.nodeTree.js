@@ -9,9 +9,7 @@ $(function(){
 		//初期化処理
 		(function(){
 			var i, j;
-			var nodesString = "";
-			var param;
-			
+
 			//ツリーデータ取得
 			$.ajax({
 				type: "GET",
@@ -29,11 +27,12 @@ $(function(){
 			//イベント追加
 			$('#jstree_demo_div').on('changed.jstree', function (e, data) {			
 				//選択されたオブジェクトを"/"区切りで連結しデータ取得のパラメータを作成します。
+				var nodesString = "";
 				for(i = 0, j = data.selected.length; i < j; i++) {
 					nodesString = nodesString + data.instance.get_node(data.selected[i]).id + "/"
 				} 
 				
-				param = nodesString.slice(0,-1);
+				var param = nodesString.slice(0,-1);
 				
 				$.ajax({
 					type: "POST",
