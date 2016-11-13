@@ -21,7 +21,7 @@ $(function(){
 		//初期化処理
 		(function(){
 			force = d3.layout.force()
-				.size([nasca.frame.wMain, nasca.frame.hMain])
+				.size([nasca.frame.wMain(), nasca.frame.hMain()])
 				.nodes(nodes)
 				.links(links)
 				.linkDistance(60)
@@ -32,7 +32,7 @@ $(function(){
 			svg = d3.select("body")
 				.append("svg")
 				.attr("id", "drawingPaper")
-				.attr("width", nasca.frame.wMain)
+				.attr("width", nasca.frame.wMain())
 		        .attr("preserveAspectRatio", "xMidYMid meet")
 				.attr("pointer-events", "all")
 				.append("g")
@@ -44,8 +44,8 @@ $(function(){
 			
 			svg.append("rect")
 				.attr("id", "background")
-				.attr("width",nasca.frame.wMain)
-				.attr("height",nasca.frame.hMain)
+				.attr("width",nasca.frame.wMain())
+				.attr("height",nasca.frame.hMain())
 				.attr("fill","white");
 			
 			// build the arrow.
