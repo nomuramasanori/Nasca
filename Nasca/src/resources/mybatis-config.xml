@@ -15,7 +15,6 @@
 		</environment>
 	</environments>
 	<mappers>
-		<mapper resource="/resources/sample_mapper.xml" />
-		<mapper resource="/resources/sample_mapper2.xml" />
+		<mapper resource="/resources/element_mapper.xml" />
 	</mappers>
 </configuration>

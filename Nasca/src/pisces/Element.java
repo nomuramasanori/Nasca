@@ -1,11 +1,12 @@
 package pisces;
 
-public class DataFlowNode {
+public class Element {
 	private String id;
 	private String name;
 	private String type;
 	private String remark;
 	private String svgFile;
+	
 	public String getId() {
 		return id;
 	}
@@ -36,6 +37,4 @@ public class DataFlowNode {
 	public void setSvgFile(String svgFile) {
 		this.svgFile = svgFile;
 	}
-	
-	
 }

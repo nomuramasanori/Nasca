@@ -37,8 +37,8 @@ public class HelloWorld extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		MybatisSample mb = new MybatisSample();
-		mb.Access();
+		ElementDAO dao = new ElementDAO();
+		dao.SelectByID("machu");
 		
 		PrintWriter out = response.getWriter();
 		Connection con = null;
