@@ -4,24 +4,24 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pisces.nasca">
   <resultMap id="element" type="pisces.Element">
-    <id property="id" column="OBJTID" />
-    <result property="name" column="OBJTNM" />
-    <result property="type" column="OBJTTP" />
-    <result property="remark" column="REMARK" />
-    <result property="svgFile" column="SVGFLE" />
+    <id property="id" column="elmtid" />
+    <result property="name" column="elmtnm" />
+    <result property="type" column="elmttp" />
+    <result property="remark" column="remark" />
+    <result property="svgFile" column="svgfle" />
   </resultMap>
   <select id="selectByID" resultMap="element">
     select
-    	OBJ.OBJTID,
-    	OBJ.OBJTNM,
-    	OBJ.OBJTTP,
-    	OBJ.REMARK,
-    	OTP.SVGFLE
+    	obj.elmtid,
+    	obj.elmtnm,
+    	obj.elmttp,
+    	obj.remark,
+    	otp.svgfle
     from
-    	M_OBJECT OBJ INNER JOIN
-    	M_OBJTTYPE OTP ON
-    		OBJ.OBJTTP = OTP.OBJTTP
+    	m_element obj INNER JOIN
+    	m_elmttype otp ON
+    		obj.elmttp = otp.elmttp
     where
-    	OBJ.OBJTID = #{objectID}
+    	obj.elmtid = #{objectID}
   </select>
 </mapper>

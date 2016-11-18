@@ -38,7 +38,7 @@ public class HelloWorld extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		ElementDAO dao = new ElementDAO();
-		dao.SelectByID("machu");
+		dao.SelectByID("PROCEDURE1");
 		
 		PrintWriter out = response.getWriter();
 		Connection con = null;
@@ -53,7 +53,7 @@ public class HelloWorld extends HttpServlet {
 			con = ds.getConnection();
 			 
 			// SQLの実行
-			pstmt = con.prepareStatement("select OBJTID,OBJTNM,OBJTTP from M_OBJECT");
+			pstmt = con.prepareStatement("select elmtid,elmtnm,elmtTP from M_element");
 			rs = pstmt.executeQuery();
 			
 			// JsonFactoryの生成
@@ -65,7 +65,7 @@ public class HelloWorld extends HttpServlet {
 			generator.writeStartArray();
 			while(rs.next()){				
 				String parent = "";
-				String[] idStrings = rs.getString("OBJTID").split("\\.");
+				String[] idStrings = rs.getString("elmtid").split("\\.");
 				
 				if(idStrings.length == 1){
 					parent = "#";
@@ -78,10 +78,10 @@ public class HelloWorld extends HttpServlet {
 				}
 				
 				generator.writeStartObject();
-				generator.writeStringField("id",rs.getString("OBJTID"));
+				generator.writeStringField("id",rs.getString("elmtID"));
 				generator.writeStringField("parent", parent);
-				generator.writeStringField("text", rs.getString("OBJTNM"));
-				generator.writeStringField("type", rs.getString("OBJTTP"));
+				generator.writeStringField("text", rs.getString("elmtNM"));
+				generator.writeStringField("type", rs.getString("elmttP"));
 				generator.writeEndObject();
 				
 			}

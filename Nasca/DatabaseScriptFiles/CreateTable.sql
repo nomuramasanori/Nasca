@@ -1,24 +1,24 @@
-CREATE TABLE `m_object` (
-  `OBJTID` varchar(20) NOT NULL,
-  `OBJTNM` varchar(40) DEFAULT NULL,
-  `OBJTTP` varchar(20) DEFAULT NULL,
-  `REMARK` varchar(60) DEFAULT NULL,
-  PRIMARY KEY (`OBJTID`)
+CREATE TABLE `m_element` (
+  `elmtid` varchar(20) NOT NULL,
+  `elmtnm` varchar(40) DEFAULT NULL,
+  `elmttp` varchar(20) DEFAULT NULL,
+  `remark` varchar(60) DEFAULT NULL,
+  PRIMARY KEY (`elmtID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `m_objttype` (
-  `OBJTTP` varchar(20) NOT NULL,
-  `SVGFLE` varchar(60) NOT NULL,
-  PRIMARY KEY (`OBJTTP`)
+CREATE TABLE `m_elmttype` (
+  `elmttp` varchar(20) NOT NULL,
+  `svgfle` varchar(60) NOT NULL,
+  PRIMARY KEY (`elmttp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `t_depndncy` (
-  `OBJTID` varchar(20) NOT NULL,
-  `DPDOID` varchar(20) NOT NULL,
-  `DPDTPC` varchar(1) NOT NULL,
-  `DPDTPR` varchar(1) NOT NULL,
-  `DPDTPU` varchar(1) NOT NULL,
-  `DPDTPD` varchar(1) NOT NULL,
-  `REMARK` varchar(200) DEFAULT NULL,
-  PRIMARY KEY (`OBJTID`,`DPDOID`)
+  `elmtid` varchar(20) NOT NULL,
+  `dpdeid` varchar(20) NOT NULL,
+  `dpdtpc` varchar(1) NOT NULL,
+  `dpdtpr` varchar(1) NOT NULL,
+  `dpdtpu` varchar(1) NOT NULL,
+  `dpdtpd` varchar(1) NOT NULL,
+  `remark` varchar(200) DEFAULT NULL,
+  PRIMARY KEY (`elmtid`,`dpdeid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
