@@ -14,6 +14,8 @@ public class BaseDAO {
 	}
 
 	protected BaseDAO() {
+		if(sessionFactory != null) return;
+		
         try (InputStream in = BaseDAO.class.getResourceAsStream("/resources/mybatis-config.xml")) {
             //設定ファイルを元に、 SqlSessionFactory を作成する
             sessionFactory = new SqlSessionFactoryBuilder().build(in);

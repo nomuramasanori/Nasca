@@ -39,6 +39,7 @@ public class HelloWorld extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		ElementDAO dao = new ElementDAO();
 		dao.SelectByID("PROCEDURE1");
+		dao.SelectAll();
 		
 		PrintWriter out = response.getWriter();
 		Connection con = null;

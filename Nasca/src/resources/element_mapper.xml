@@ -10,6 +10,18 @@
     <result property="remark" column="remark" />
     <result property="svgFile" column="svgfle" />
   </resultMap>
+  <select id="selectAll" resultMap="element">
+    select
+    	obj.elmtid,
+    	obj.elmtnm,
+    	obj.elmttp,
+    	obj.remark,
+    	otp.svgfle
+    from
+    	m_element obj INNER JOIN
+    	m_elmttype otp ON
+    		obj.elmttp = otp.elmttp
+  </select>
   <select id="selectByID" resultMap="element">
     select
     	obj.elmtid,
