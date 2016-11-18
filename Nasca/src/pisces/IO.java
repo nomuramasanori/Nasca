@@ -75,7 +75,7 @@ public class IO extends HttpServlet {
 			String conditionIN = "";
 			for(int i=0 ; i < nodeStrings.length ; i++){
 				//名前空間の場合はスキップ
-				rs = con.prepareStatement("select count(*) cnt from M_OBJECT where OBJTID like '" + nodeStrings[i] + ".%'").executeQuery();
+				rs = con.prepareStatement("select count(*) cnt from M_ELEMENT where ELMTID like '" + nodeStrings[i] + ".%'").executeQuery();
 				rs.next();
 				if(rs.getInt("cnt") > 0){
 					continue;
@@ -93,15 +93,15 @@ public class IO extends HttpServlet {
 			//チェックされたノードに関係するノードとIO情報を取得
 			String sql = ""
 					+ " SELECT"
-					+ "   OBJTID"
-					+ "   , DPDOID"
+					+ "   ELMTID"
+					+ "   , DPDEID"
 					+ "   , REMARK"
 					+ "   , CONCAT(DPDTPC, DPDTPR, DPDTPU, DPDTPD) DPDTYP" 
 					+ " FROM"
 					+ "   t_depndncy"
 					+ " WHERE"
-					+ "   OBJTID IN (" + conditionIN + ") OR"
-					+ "   DPDOID IN (" + conditionIN + ")";
+					+ "   ELMTID IN (" + conditionIN + ") OR"
+					+ "   DPDEID IN (" + conditionIN + ")";
 
 			//SQLの実行
 			rs = con.prepareStatement(sql).executeQuery();
@@ -109,9 +109,9 @@ public class IO extends HttpServlet {
 			//検索結果からノードリスト・リンクリストを作成します。
 			//結果変数はHashSetなので重複を考慮しなくても問題ありません。
 			while(rs.next()){
-				nodes.add(rs.getString("OBJTID"));
-				nodes.add(rs.getString("DPDOID"));
-				links.put(rs.getString("OBJTID")+"-"+rs.getString("DPDOID"), rs.getString("DPDTYP") + "/" + rs.getString("REMARK"));
+				nodes.add(rs.getString("ELMTID"));
+				nodes.add(rs.getString("DPDEID"));
+				links.put(rs.getString("ELMTID")+"-"+rs.getString("DPDEID"), rs.getString("DPDTYP") + "/" + rs.getString("REMARK"));
 			}
 			
 			//JSON生成の開始
@@ -124,14 +124,14 @@ public class IO extends HttpServlet {
 		    while (node.hasNext()) {
 		    	String id = node.next();
 		    	//オブジェクトタイプを取得
-		    	sql = "select OBJ.OBJTNM, OBJ.OBJTTP, OBJ.REMARK, OTP.SVGFLE from M_OBJECT OBJ INNER JOIN M_OBJTTYPE OTP ON OBJ.OBJTTP = OTP.OBJTTP where OBJ.OBJTID = \'"+ id + "\'";
+		    	sql = "select OBJ.ELMTNM, OBJ.ELMTTP, OBJ.REMARK, OTP.SVGFLE from M_ELEMENT OBJ INNER JOIN M_ELMTTYPE OTP ON OBJ.ELMTTP = OTP.ELMTTP where OBJ.ELMTID = \'"+ id + "\'";
 				pstmt = con.prepareStatement(sql);
 				rs = pstmt.executeQuery();
 				while(rs.next()){
 			    	generator.writeStartObject();
 			    	generator.writeStringField("id", id);
-			    	generator.writeStringField("name", rs.getString("OBJTNM"));
-			    	generator.writeStringField("type", rs.getString("OBJTTP"));
+			    	generator.writeStringField("name", rs.getString("ELMTNM"));
+			    	generator.writeStringField("type", rs.getString("ELMTTP"));
 			    	generator.writeStringField("remark", rs.getString("REMARK"));
 			    	generator.writeStringField("svg-file", rs.getString("SVGFLE"));
 			    	generator.writeEndObject();
