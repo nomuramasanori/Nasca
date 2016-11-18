@@ -16,8 +16,6 @@ public class ElementDAO extends BaseDAO {
             result = session.selectOne("pisces.nasca.selectByID", id);
         }
 		
-		System.out.println(result.getName());
-		
 		return result;
 	}
 	
