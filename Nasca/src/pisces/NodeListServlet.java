@@ -17,14 +17,14 @@ import java.util.List;
 /**
  * Servlet implementation class HelloWorld
  */
-@WebServlet("/HelloWorld")
-public class HelloWorld extends HttpServlet {
+@WebServlet("/NodeList")
+public class NodeListServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
     /**
      * Default constructor. 
      */
-    public HelloWorld() {
+    public NodeListServlet() {
         // TODO Auto-generated constructor stub
     }
 

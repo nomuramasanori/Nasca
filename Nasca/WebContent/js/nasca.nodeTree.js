@@ -13,7 +13,7 @@ $(function(){
 			//ツリーデータ取得
 			$.ajax({
 				type: "GET",
-				url: "HelloWorld",
+				url: "NodeList",
 				dataType: "json",
 				success: function(data, textStatus){
 					//ツリー生成
