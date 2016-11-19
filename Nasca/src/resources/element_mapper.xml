@@ -18,7 +18,7 @@
     	obj.remark,
     	otp.svgfle
     from
-    	m_element obj INNER JOIN
+    	m_element obj LEFT OUTER JOIN
     	m_elmttype otp ON
     		obj.elmttp = otp.elmttp
   </select>
@@ -30,7 +30,7 @@
     	obj.remark,
     	otp.svgfle
     from
-    	m_element obj INNER JOIN
+    	m_element obj LEFT OUTER JOIN
     	m_elmttype otp ON
     		obj.elmttp = otp.elmttp
     where
