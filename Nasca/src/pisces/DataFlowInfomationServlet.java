@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,14 +20,14 @@ import com.fasterxml.jackson.core.JsonGenerator;
 /**
  * Servlet implementation class IO
  */
-@WebServlet("/IO")
-public class IO extends HttpServlet {
+@WebServlet("/DataFlowInfomation")
+public class DataFlowInfomationServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public IO() {
+    public DataFlowInfomationServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -37,9 +36,9 @@ public class IO extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		PrintWriter out = response.getWriter();
-		out.println("doGet!");
-	}
+    	request.setAttribute("parameter", "NS.NOM.harada/TABLE8");
+    	this.doPost(request, response);
+    }
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
@@ -53,10 +52,16 @@ public class IO extends HttpServlet {
 		// JsonGeneratorの取得
 		JsonGenerator generator = jsonFactory.createGenerator(out);
 		
-		Set<Element> nodes = new HashSet<>();
-		Map<String, String> links = new HashMap<>();
-		
-		String[] nodeStrings = request.getParameter("parameter").split("/");
+		Set<Element> nodes = new HashSet<Element>();
+		Map<String, Dependency> links = new HashMap<String, Dependency>();
+
+		//デバッグのためGETからでも動作するようにします
+		String[] nodeStrings = null;
+		if(request.getAttribute("parameter") != null){
+			nodeStrings = ((String)(request.getAttribute("parameter"))).split("/");
+		}else{
+			nodeStrings = request.getParameter("parameter").split("/");
+		}
 		
 		for(int i=0 ; i < nodeStrings.length ; i++){
 			//空文字の場合はスキップ
@@ -75,7 +80,7 @@ public class IO extends HttpServlet {
 			List<Dependency> dependencies = element.getDependency();
 			for(Dependency dependency : dependencies){
 				nodes.add(dependency.element);
-				links.put(element.getId()+"-"+dependency.element.getId() , dependency.getDependencyType() + "/" + dependency.getRemark());
+				links.put(element.getId()+"-"+dependency.element.getId() , dependency);
 			}
 			
 			//依存される要素を取得し結果変数に格納します。
@@ -83,7 +88,7 @@ public class IO extends HttpServlet {
 			List<Dependency> dependenciesDependOnMe = element.getDependencyDependOnMe();
 			for(Dependency dependencyDependOnMe : dependenciesDependOnMe){
 				nodes.add(dependencyDependOnMe.element);
-				links.put(dependencyDependOnMe.element.getId()+"-"+element.getId() , dependencyDependOnMe.getDependencyType() + "/" + dependencyDependOnMe.getRemark());
+				links.put(dependencyDependOnMe.element.getId()+"-"+element.getId() , dependencyDependOnMe);
 			}
 		}
 		
@@ -107,16 +112,13 @@ public class IO extends HttpServlet {
 		//リンク情報を作成します
 		generator.writeFieldName("links");
 		generator.writeStartArray();
-		Iterator<Map.Entry<String, String>> link = links.entrySet().iterator();
-	    while (link.hasNext()) {
-	    	Map.Entry<String, String> linkString = link.next();
-	    	String[] splittedKey = linkString.getKey().split("-");
-	    	String[] splittedValue = linkString.getValue().split("/");
+	    for(Map.Entry<String, Dependency> link : links.entrySet()) {
+	    	String[] splittedKey = link.getKey().split("-");
 	        generator.writeStartObject();
-	        generator.writeStringField("source",splittedKey[0]);
-	    	generator.writeStringField("target",splittedKey[1]);
-	    	generator.writeStringField("crud",splittedValue[0]);
-	    	generator.writeStringField("remark",splittedValue[1]);
+	        generator.writeStringField("source", splittedKey[0]);
+	    	generator.writeStringField("target", splittedKey[1]);
+	    	generator.writeStringField("crud", link.getValue().getDependencyType());
+	    	generator.writeStringField("remark", link.getValue().getRemark());
 	    	generator.writeEndObject();
 	    }
 		generator.writeEndArray();

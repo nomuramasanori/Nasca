@@ -36,7 +36,7 @@ $(function(){
 				
 				$.ajax({
 					type: "POST",
-					url: "IO",
+					url: "DataFlowInfomation",
 					dataType: "json",
 					data : {parameter : param},
 					success: function(json, textStatus){

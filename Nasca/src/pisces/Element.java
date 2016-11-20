@@ -1,6 +1,7 @@
 package pisces;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Element {
 	private ElementDAO elementDAO;
@@ -64,4 +65,23 @@ public class Element {
 		
 		return result;
 	}
+	
+	@Override
+	public boolean equals(Object obj){
+        // オブジェクトがnullでないこと
+        if (obj == null) {
+            return false;
+        }
+        // オブジェクトが同じ型であること
+        if (!(obj instanceof Element)) {
+            return false;
+        }
+        // 同値性を比較
+        return this.getId().equals(((Element)obj).getId());
+	}
+	
+	@Override
+    public int hashCode() {
+        return Objects.hash(this.getId());
+    }
 }
