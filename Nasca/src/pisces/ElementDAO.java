@@ -13,7 +13,7 @@ public class ElementDAO extends BaseDAO {
 		Element result = null;
 		
 		try (SqlSession session = this.getSessionFactory().openSession()) {
-            result = session.selectOne("pisces.nasca.selectByID", id);
+            result = session.selectOne("pisces.nasca.element.selectByID", id);
         }
 		
 		return result;
@@ -23,8 +23,21 @@ public class ElementDAO extends BaseDAO {
 		List<Element> result = null;
 		
 		try (SqlSession session = this.getSessionFactory().openSession()) {
-			result = session.selectList("pisces.nasca.selectAll");
+			result = session.selectList("pisces.nasca.element.selectAll");
         }
+		
+		return result;
+	}
+	
+	public boolean IsLeaf(String id){
+		boolean result = true;
+		List<Element> elements = null;
+		
+		try (SqlSession session = this.getSessionFactory().openSession()) {
+			elements = session.selectList("pisces.nasca.element.selectChild", id);
+        }
+		
+		if(elements.size() > 1) result = false;
 		
 		return result;
 	}

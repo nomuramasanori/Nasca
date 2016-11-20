@@ -1,11 +1,19 @@
 package pisces;
 
+import java.util.List;
+
 public class Element {
+	private DependencyDAO dao;
+	
 	private String id;
 	private String name;
 	private String type;
 	private String remark;
 	private String svgFile;
+	
+	public Element(){
+		this.dao = new DependencyDAO();
+	}
 	
 	public String getId() {
 		return id;
@@ -36,5 +44,13 @@ public class Element {
 	}
 	public void setSvgFile(String svgFile) {
 		this.svgFile = svgFile;
+	}
+	
+	public List<Dependency> GetDependency(){
+		return this.dao.SelectByElementID(this.id);
+	}
+	
+	public List<Dependency> GetDependencyDependOnMe(){
+		return this.dao.SelectByDependencyElementID(this.id);
 	}
 }

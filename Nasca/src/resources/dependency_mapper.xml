@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pisces.nasca.dependency">
+  <resultMap id="dependency" type="pisces.Dependency"> 
+    <result property="dependencyTypeCreate" column="dpdtpc" />
+    <result property="dependencyTypeRead" column="dpdtpr" />
+    <result property="dependencyTypeUpdate" column="dpdtpu" />
+    <result property="dependencyTypeDelete" column="dpdtpd" />
+    <result property="remark" column="dpdrmk" />
+    <association property="element" resultMap="pisces.nasca.element.element" /> 
+  </resultMap>
+  <select id="selectByElementID" resultMap="dependency">
+	select
+		elm.elmtid,
+		elm.elmtnm,
+		elm.elmttp,
+		elm.remark,
+		etp.svgfle,
+		dpd.dpdtpc,
+		dpd.dpdtpr,
+		dpd.dpdtpu,
+		dpd.dpdtpd,
+		dpd.remark dpdrmk
+	from
+		t_depndncy dpd
+		inner join m_element elm on
+			dpd.dpdeid = elm.elmtid
+		left outer join m_elmttype etp on
+	    	elm.elmttp = etp.elmttp
+	where
+		dpd.elmtid = #{elementID}
+  </select>
+  <select id="selectByDependencyElementID" resultMap="dependency">
+	select
+		elm.elmtid,
+		elm.elmtnm,
+		elm.elmttp,
+		elm.remark,
+		etp.svgfle,
+		dpd.dpdtpc,
+		dpd.dpdtpr,
+		dpd.dpdtpu,
+		dpd.dpdtpd,
+		dpd.remark dpdrmk
+	from
+		t_depndncy dpd
+		inner join m_element elm on
+			dpd.elmtid = elm.elmtid
+		left outer join m_elmttype etp on
+	    	elm.elmttp = etp.elmttp
+	where
+		dpd.dpdeid = #{elementID}
+  </select>
+</mapper>

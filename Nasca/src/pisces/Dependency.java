@@ -1,0 +1,47 @@
+package pisces;
+
+public class Dependency {
+	Element element;
+	boolean dependencyTypeCreate;
+	boolean dependencyTypeRead;
+	boolean dependencyTypeUpdate;
+	boolean dependencyTypeDelete;
+	String remark;
+	
+	public Element getElement() {
+		return element;
+	}
+	public void setElement(Element element) {
+		this.element = element;
+	}
+	public boolean isDependencyTypeCreate() {
+		return dependencyTypeCreate;
+	}
+	public void setDependencyTypeCreate(boolean dependencyTypeCreate) {
+		this.dependencyTypeCreate = dependencyTypeCreate;
+	}
+	public boolean isDependencyTypeRead() {
+		return dependencyTypeRead;
+	}
+	public void setDependencyTypeRead(boolean dependencyTypeRead) {
+		this.dependencyTypeRead = dependencyTypeRead;
+	}
+	public boolean isDependencyTypeUpdate() {
+		return dependencyTypeUpdate;
+	}
+	public void setDependencyTypeUpdate(boolean dependencyTypeUpdate) {
+		this.dependencyTypeUpdate = dependencyTypeUpdate;
+	}
+	public boolean isDependencyTypeDelete() {
+		return dependencyTypeDelete;
+	}
+	public void setDependencyTypeDelete(boolean dependencyTypeDelete) {
+		this.dependencyTypeDelete = dependencyTypeDelete;
+	}
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+}
