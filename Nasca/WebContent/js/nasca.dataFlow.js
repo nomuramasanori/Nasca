@@ -20,6 +20,8 @@ $(function(){
 		
 		//初期化処理
 		(function(){
+			var linearGradient;
+			
 			force = d3.layout.force()
 				.size([nasca.frame.wMain(), nasca.frame.hMain()])
 				.nodes(nodes)
@@ -42,13 +44,14 @@ $(function(){
 				.append("g")
 				.attr("id", "test");
 			
+			//領域全体をドラッグアンドドロップするためのプレースホルダ
 			svg.append("rect")
 				.attr("id", "background")
 				.attr("width",nasca.frame.wMain())
 				.attr("height",nasca.frame.hMain())
 				.attr("fill","white");
-			
-			// build the arrow.
+
+			//矢印定義（終端）
 			svg.append("svg:defs").selectAll("marker")
 			    .data(colors)      // Different link/path types can be defined here
 			    .enter().append("svg:marker")    // This section adds in the arrows
@@ -67,6 +70,7 @@ $(function(){
 					return "rgb(" + d[0] + "," + d[1] + "," + d[2] + ")";
 				});
 			
+			//矢印定義（始端）
 			svg.append("svg:defs").selectAll("marker")
 			    .data(colors)      // Different link/path types can be defined here
 			    .enter().append("svg:marker")    // This section adds in the arrows
@@ -84,6 +88,13 @@ $(function(){
 				.attr("fill", function(d){
 					return "rgb(" + d[0] + "," + d[1] + "," + d[2] + ")";
 				});
+			
+			//線のグラデーション定義
+			linearGradient = svg.append("svg:defs")
+				.append("linearGradient")
+				.attr("id", "fadeout");
+			linearGradient.append("stop").attr("offset","50%").attr("stop-color","#FFF");
+			linearGradient.append("stop").attr("offset","95%").attr("stop-color","#999");
 	
 			svg.append("svg:g");
 		})();
@@ -313,8 +324,17 @@ $(function(){
 			return result;
 		};
 		
+		var debug = function(){
+			console.log(nodes);
+			nodes[0]["type"] = "EXCEL";
+			nodes[0]["name"] = "debug";
+			d3.selectAll('.nodeName').data(nodes, function(d,i){return d.id;}).text(function(d){return d["name"]});
+			d3.selectAll("path").style("stroke", "url(#fadeout)");
+		};
+		
 		return{
-			draw : draw
+			draw : draw,
+			debug : debug
 		};
 	})();
 });
