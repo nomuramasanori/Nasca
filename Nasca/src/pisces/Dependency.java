@@ -38,6 +38,13 @@ public class Dependency {
 	public void setDependencyTypeDelete(boolean dependencyTypeDelete) {
 		this.dependencyTypeDelete = dependencyTypeDelete;
 	}
+	public String getDependencyType() {
+		return
+			(this.isDependencyTypeCreate() ? "1" : "0") +
+			(this.isDependencyTypeRead() ? "1" : "0") +
+			(this.isDependencyTypeUpdate() ? "1" : "0") +
+			(this.isDependencyTypeDelete() ? "1" : "0");
+	}
 	public String getRemark() {
 		return remark;
 	}

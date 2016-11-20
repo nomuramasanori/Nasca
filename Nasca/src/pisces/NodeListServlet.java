@@ -35,7 +35,7 @@ public class NodeListServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		
 		ElementDAO dao = new ElementDAO();
-		List<Element> elements = dao.SelectAll();
+		List<Element> elements = dao.selectAll();
 		Iterator<Element> itr = elements.iterator();
 		
 		// JsonFactoryの生成

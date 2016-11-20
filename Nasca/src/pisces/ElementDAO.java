@@ -9,7 +9,7 @@ public class ElementDAO extends BaseDAO {
 	//コンストラクタ
 	public ElementDAO(){}
 	
-	public Element SelectByID(String id){
+	public Element selectByID(String id){
 		Element result = null;
 		
 		try (SqlSession session = this.getSessionFactory().openSession()) {
@@ -19,7 +19,7 @@ public class ElementDAO extends BaseDAO {
 		return result;
 	}
 	
-	public List<Element> SelectAll(){
+	public List<Element> selectAll(){
 		List<Element> result = null;
 		
 		try (SqlSession session = this.getSessionFactory().openSession()) {
@@ -29,16 +29,13 @@ public class ElementDAO extends BaseDAO {
 		return result;
 	}
 	
-	public boolean IsLeaf(String id){
-		boolean result = true;
-		List<Element> elements = null;
+	public List<Element> selectChild(String id){
+		List<Element> result = null;
 		
 		try (SqlSession session = this.getSessionFactory().openSession()) {
-			elements = session.selectList("pisces.nasca.element.selectChild", id);
+			result = session.selectList("pisces.nasca.element.selectChild", id);
         }
-		
-		if(elements.size() > 1) result = false;
-		
+
 		return result;
 	}
 }

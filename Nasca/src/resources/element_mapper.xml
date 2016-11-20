@@ -48,6 +48,6 @@
     	m_elmttype otp ON
     		obj.elmttp = otp.elmttp
     where
-    	obj.elmtid like concat(#{objectID}, '%')
+    	obj.elmtid like concat(#{objectID}, '.%')
   </select>
 </mapper>

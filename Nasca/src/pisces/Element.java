@@ -3,7 +3,8 @@ package pisces;
 import java.util.List;
 
 public class Element {
-	private DependencyDAO dao;
+	private ElementDAO elementDAO;
+	private DependencyDAO dependencyDAO;
 	
 	private String id;
 	private String name;
@@ -12,7 +13,8 @@ public class Element {
 	private String svgFile;
 	
 	public Element(){
-		this.dao = new DependencyDAO();
+		this.elementDAO = new ElementDAO();
+		this.dependencyDAO = new DependencyDAO();
 	}
 	
 	public String getId() {
@@ -46,11 +48,20 @@ public class Element {
 		this.svgFile = svgFile;
 	}
 	
-	public List<Dependency> GetDependency(){
-		return this.dao.SelectByElementID(this.id);
+	public List<Dependency> getDependency(){
+		return this.dependencyDAO.SelectByElementID(this.id);
 	}
 	
-	public List<Dependency> GetDependencyDependOnMe(){
-		return this.dao.SelectByDependencyElementID(this.id);
+	public List<Dependency> getDependencyDependOnMe(){
+		return this.dependencyDAO.SelectByDependencyElementID(this.id);
+	}
+	
+	public boolean isLeaf(){
+		boolean result = true;
+		
+		List<Element> elements = this.elementDAO.selectChild(this.id);
+		if(elements.size() > 0) result = false;
+		
+		return result;
 	}
 }
