@@ -15,7 +15,8 @@ $(function(){
 		      		[255,255,0], [0,255,0], [0,0,255], [255,64,0],
 		      		[64,255,0], [0,64,255],　[0,255,64],　[64,0,255],
 		      		[255,0,64],　[160,32,32],　[196,128,64],　[128,196,64],
-		      		[64,128,196],　[64,196,128],　[96,96,96], [0,0,0]
+		      		[64,128,196],　[64,196,128],　[96,96,96], [0,0,0],
+		      		[230,230,230]	//半透明リンク用
 		];
 		
 		//初期化処理
@@ -56,7 +57,7 @@ $(function(){
 			    .data(colors)      // Different link/path types can be defined here
 			    .enter().append("svg:marker")    // This section adds in the arrows
 			    .attr("id", function(d,i){
-			    	return "marker-end-" + ("0000" + i.toString(2)).slice(-4);
+			    	return "marker-end-" + i;
 			    })
 			    .attr("viewBox", "0 -5 10 10")
 			    .attr("refX", 32)	//矢印の位置
@@ -75,7 +76,7 @@ $(function(){
 			    .data(colors)      // Different link/path types can be defined here
 			    .enter().append("svg:marker")    // This section adds in the arrows
 			    .attr("id", function(d,i){
-			    	return "marker-start-" + ("0000" + i.toString(2)).slice(-4);
+			    	return "marker-start-" + i;
 			    })
 			    .attr("viewBox", "0 -5 10 10")
 			    .attr("refX", -22)	//矢印の位置
@@ -89,12 +90,21 @@ $(function(){
 					return "rgb(" + d[0] + "," + d[1] + "," + d[2] + ")";
 				});
 			
-			//線のグラデーション定義
+			//線のグラデーション定義（終端）
+			linearGradient = svg.append("svg:defs")
+				.append("radialGradient")
+				.attr("id", "fadeout-end")
+				.attr("cx", "80%")
+			linearGradient.append("stop").attr("offset","50%").attr("stop-color","rgb(0,0,180)");
+			linearGradient.append("stop").attr("offset","80%").attr("stop-color","rgb(250,150,0)");
+			
+			//線のグラデーション定義（始端）
 			linearGradient = svg.append("svg:defs")
 				.append("linearGradient")
-				.attr("id", "fadeout");
-			linearGradient.append("stop").attr("offset","50%").attr("stop-color","#FFF");
-			linearGradient.append("stop").attr("offset","95%").attr("stop-color","#999");
+				.attr("id", "fadeout-start");
+			linearGradient.append("stop").attr("offset","50%").attr("stop-color","rgb(0,220,0)");
+			linearGradient.append("stop").attr("offset","80%").attr("stop-color","rgb(255,0,255)");
+			
 	
 			svg.append("svg:g");
 		})();
@@ -105,23 +115,90 @@ $(function(){
 			
 			//リンク描画
 			var link = svg.select("g").selectAll("path").data(links, function(d,i){return d.source.id + '-' + d.target.id;});
-		    link.enter().append("svg:path")
+		    link
+		    	.enter().append("svg:path")
 		    	.style("fill", "none")
 		    	.style("stroke", function(d){
-		    		var colorIndex = parseInt(d["crud"],2);
-		    		var color = colors[colorIndex];
-		    		return "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")";
+		    		if(d.visible){
+		    			return "rgb(" + colors[d.colorIndex][0] + "," + colors[d.colorIndex][1] + "," + colors[d.colorIndex][2] + ")";
+		    		}else{
+		    			return "rgb(" + colors[16][0] + "," + colors[16][1] + "," + colors[16][2] + ")";
+		    		}
+		    	})
+		    	.style("stroke-dasharray", function(d){
+		    		if(d.visible || (d.source.visible && d.target.visible)){
+		    			return "0";
+		    		}else{
+		    			return "40,1,4,2,3,3,2,4,1,9999";
+		    		}
 		    	})
 		    	.style("stroke-width", "1.5px")
 		    	.attr("marker-start", function(d){
-		    		if(d["io"] === "I" || d["io"] === "IO"){
-		    			return "url(#marker-start-" + d["crud"] + ")";
+		    		if(!d.source.visible && d.target.visible){
+		    			if(!d.target.visible) return null;
+		    			
+		    			if(d.io === "O" || d.io === "IO"){
+			    			if(d.visible){
+			    				return "url(#marker-start-" + d.colorIndex + ")";
+			    			}else{
+			    				return "url(#marker-start-16)";
+			    			}
+			    			
+			    		}
+		    		} else{
+		    			if(!d.source.visible) return null;
+		    			
+		    			if(d.io === "I" || d.io === "IO"){
+			    			if(d.visible){
+			    				return "url(#marker-start-" + d.colorIndex + ")";
+			    			}else{
+			    				return "url(#marker-start-16)";
+			    			}
+			    			
+			    		}
 		    		}
+//		    		if(!d.source.visible) return null;
+//		    		
+//		    		if(d.io === "I" || d.io === "IO"){
+//		    			if(d.visible){
+//		    				return "url(#marker-start-" + d.colorIndex + ")";
+//		    			}else{
+//		    				return "url(#marker-start-16)";
+//		    			}
+//		    			
+//		    		}
 		    	})
 		    	.attr("marker-end", function(d){
-		    		if(d["io"] === "O" || d["io"] === "IO"){
-		    			return "url(#marker-end-" + d["crud"] + ")";
+		    		if(!d.source.visible && d.target.visible){
+		    			if(!d.source.visible) return null;
+		    			
+		    			if(d.io === "I" || d.io === "IO"){
+			    			if(d.visible){
+			    				return "url(#marker-end-" + d.colorIndex + ")";
+			    			}else{
+			    				return "url(#marker-end-16)";
+			    			}
+			    		}
+		    		} else{
+		    			if(!d.target.visible) return null;
+		    			
+		    			if(d.io === "O" || d.io === "IO"){
+			    			if(d.visible){
+			    				return "url(#marker-end-" + d.colorIndex + ")";
+			    			}else{
+			    				return "url(#marker-end-16)";
+			    			}
+			    		}
 		    		}
+//		    		if(!d.target.visible) return null;
+//		    		
+//		    		if(d.io === "O" || d.io === "IO"){
+//		    			if(d.visible){
+//		    				return "url(#marker-end-" + d.colorIndex + ")";
+//		    			}else{
+//		    				return "url(#marker-end-16)";
+//		    			}
+//		    		}
 		    	});
 	
 			link.exit().remove();
@@ -135,61 +212,67 @@ $(function(){
 	
 			//ノード描画
 			var img = svg.selectAll("image").data(nodes, function(d,i){return d.id;});
-			img.enter().append("image")
-			.attr("xlink:href", function(d){
-				return "./img/" + d["svg-file"];
-			}) //ノード用画像の設定
-			.attr("x", "-16px")
-			.attr("y", "-16px")
-			.attr("width", "32px")
-			.attr("height", "32px")
-			.on("mouseenter", function(d){
-				var i,j;
-				var flg = false;
-				j = comments.length;
-				for(i=0; i<j; i++){
-					if(comments[i]["id"] === d.id){
-						comments.splice(i,1);
-						flg = true;
-						break;
+			img
+				.attr("xlink:href", function(d){if(d.visible) return "./img/" + d["svg-file"]; else return null;}) //ノード用画像の設定
+				.attr("width", function(d){if(d.visible) return "32px"; else return "0px";})
+				.attr("height", function(d){if(d.visible) return "32px"; else return "0px";})
+				.attr("x", function(d){if(d.visible) return "-16px"; else return "0px";})
+				.attr("y", function(d){if(d.visible) return "-16px"; else return "0px";})
+				.enter().append("image")
+				.attr("xlink:href", function(d){if(d.visible) return "./img/" + d["svg-file"]; else return null;}) //ノード用画像の設定
+				.attr("width", function(d){if(d.visible) return "32px"; else return "0px";})
+				.attr("height", function(d){if(d.visible) return "32px"; else return "0px";})
+				.attr("x", function(d){if(d.visible) return "-16px"; else return "0px";})
+				.attr("y", function(d){if(d.visible) return "-16px"; else return "0px";})
+				.on("mouseenter", function(d){
+					var i,j;
+					var flg = false;
+					j = comments.length;
+					for(i=0; i<j; i++){
+						if(comments[i]["id"] === d.id){
+							comments.splice(i,1);
+							flg = true;
+							break;
+						}
 					}
-				}
-				if(!flg){
-					comments.push(d);
-				}
-				drawComment();
-			})
-			.on("mouseleave", function(d){
-				var i,j;
-				var flg = false;
-				j = comments.length;
-				for(i=0; i<j; i++){
-					if(comments[i]["id"] === d.id){
-						comments.splice(i,1);
-						flg = true;
-						break;
+					if(!flg){
+						comments.push(d);
 					}
-				}
-				if(!flg){
-					comments.push(d);
-				}
-				drawComment();
-			})
-			.on("mousedown", function(d){
-				d3.event.stopPropagation();
-			})
-			.on("click", function(d){
-				d3.event.stopPropagation();
-				$('#jstree_demo_div').jstree('select_node', d.id);
-			})
-			.call(force.drag);
+					drawComment();
+				})
+				.on("mouseleave", function(d){
+					var i,j;
+					var flg = false;
+					j = comments.length;
+					for(i=0; i<j; i++){
+						if(comments[i]["id"] === d.id){
+							comments.splice(i,1);
+							flg = true;
+							break;
+						}
+					}
+					if(!flg){
+						comments.push(d);
+					}
+					drawComment();
+				})
+				.on("mousedown", function(d){
+					d3.event.stopPropagation();
+				})
+				.on("click", function(d){
+					d3.event.stopPropagation();
+					$('#jstree_demo_div').jstree('select_node', d.id);
+				})
+				.call(force.drag);
 			img.exit().remove();
 			
 			//オブジェクト名称描画
 			var text = svg.selectAll("text.nodeName").data(nodes, function(d,i){return d.id;});
-			text.enter().append("text")
+			text
+				.text(function(d){if(d.visible) return d.name; else return null;})
+				.enter().append("text")
 				.attr("class", "nodeName")
-			    .text( function (d) { return d.name; })
+			    .text(function(d){if(d.visible) return d.name; else return null;})
 			    .attr("font-family", "sans-serif")
 			    .attr("font-size", "20px")
 			    .attr("fill", "darkgray");
@@ -197,20 +280,12 @@ $(function(){
 			
 			force.on("tick", function() {
 				link.attr("d", function(d) {
-					var dr;
-					if(d["duplex"]){
-						var dx = d.target.x - d.source.x,
-			            dy = d.target.y - d.source.y;
-			            dr = Math.sqrt(dx * dx + dy * dy);
+					//2段階目の点線描画のため線の向きを制御します
+					if(!d.source.visible && d.target.visible){
+						return "M" + d.target.x + "," + d.target.y + " " + d.source.x + "," + d.source.y;
 					}else{
-				        dr = 0;
+						return "M" + d.source.x + "," + d.source.y + " " + d.target.x + "," + d.target.y;
 					}
-					return "M" + 
-		            d.source.x + "," + 
-		            d.source.y + "A" + 
-		            dr + "," + dr + " 0 0,1 " + 
-		            d.target.x + "," + 
-		            d.target.y;
 			    });
 			    
 			    node
@@ -229,29 +304,61 @@ $(function(){
 		
 		var updateData = function(json){
 			var i,j;
-			var length;
+			var countJsonNodes, countJsonLinks, countDataNodes, countDataLinks;
+			var isExists;
 			var target,source;
 	
 			//ノードを追加・削除
 			//変更のないデータを削除⇒追加するとD3への束縛に不具合が発生するので変更分のみ追加・削除を行う
-			j = json["nodes"].length;
-			for(i=0; i<j ; i++){
-				if(!contain(json["nodes"][i]["id"], nodes, function(d){return d.id;})){
+			countJsonNodes = json["nodes"].length;
+			for(i=0; i<countJsonNodes ; i++){
+				countDataNodes = nodes.length;
+				isExists = false;
+				for(j=0; j<countDataNodes; j++){
+					//D3データに既に存在する場合はプロパティを更新します（nodeごと入れ替えると不具合が発生するため必要なプロパティを明示します）
+					if(json["nodes"][i].id === nodes[j].id){
+						isExists = true
+						nodes[j].visible = json["nodes"][i].visible;
+						break;
+					}
+				}
+				//D3データに存在しない場合は追加します
+				if(!isExists){
 					nodes.push(json["nodes"][i]);
 				}
 			}
-			j = nodes.length;
-			for(i=j-1; 0<=i ; i--){
-				if(!contain(nodes[i]["id"], json["nodes"], function(d){return d.id;})){
+			countDataNodes = nodes.length;
+			for(i=countDataNodes-1; 0<=i ; i--){
+				countJsonNodes = json["nodes"].length;
+				isExists = false;
+				for(j=0; j<countJsonNodes; j++){
+					if(nodes[i].id === json["nodes"][j].id){
+						isExists = true
+						break;
+					}
+				}
+				//JSONに存在しなければD3データを削除します
+				if(!isExists){
 					nodes.splice(i, 1);
 				}
 			}
 			
 			//リンクを追加・削除
 			//変更のないデータを削除⇒追加するとD3への束縛に不具合が発生するので変更分のみ追加・削除を行う
-			j = json["links"].length;
-			for(i=0; i<j ; i++){
-				if(!contain(json["links"][i]["source"] + json["links"][i]["target"], links, function(d){return d.source.id + d.target.id;})){
+			countJsonLinks = json["links"].length;
+			for(i=0; i<countJsonLinks ; i++){
+				countDataLinks = links.length;
+				isExists = false;
+				for(j=0; j<countDataLinks; j++){
+					//D3データに既に存在する場合はプロパティを更新します（linkごと入れ替えると不具合が発生するため必要なプロパティを明示します）
+					if(json["links"][i].source === links[j].source.id && json["links"][i].target === links[j].target.id){
+						isExists = true
+						links[j].visible = json["links"][i].visible;
+						break;
+					}
+				}
+				//D3データに存在しない場合は追加します
+				if(!isExists){
 					target = nodes.filter(function(item, index){
 						if (item.id == json["links"][i]["target"]) return true;
 					});
@@ -260,27 +367,31 @@ $(function(){
 						if (item.id == json["links"][i]["source"]) return true;
 					});
 					
-					links.push({source: source[0], target: target[0], crud: json["links"][i]["crud"], remark: json["links"][i]["remark"], io: getIO(json["links"][i]["crud"])});
+					links.push({
+						source: source[0],
+						target: target[0],
+						remark: json["links"][i].remark,
+						io: json["links"][i].io,
+						colorIndex: json["links"][i].colorIndex,
+						visible: json["links"][i].visible
+					});
 				}
 			}
-			j = links.length;
-			for(i=j-1; 0<=i ; i--){
-				if(!contain(links[i]["source"]["id"] + links[i]["target"]["id"], json["links"], function(d){return d.source + d.target;})){
+			countDataLinks = links.length;
+			for(i=countDataLinks-1; 0<=i ; i--){				
+				countJsonLinks = json["links"].length;
+				isExists = false;
+				for(j=0; j<countJsonLinks; j++){
+					if(links[i].source.id === json.links[j].source && links[i].target.id === json.links[j].target){
+						isExists = true
+						break;
+					}
+				}
+				//JSONに存在しなければD3データを削除します
+				if(!isExists){
 					links.splice(i, 1);
 				}
 			}
-		};
-		
-		//引数に渡した値が配列に含まれているかどうかを検索します
-		var contain = function(val, arr, func){
-			var i,j;
-			j=arr.length;
-			for(i=0; i<j; i++){
-				if(val === func(arr[i])){
-					return true;
-				}
-			}
-			return false;
 		};
 		
 		var drawComment = function(){
@@ -308,24 +419,7 @@ $(function(){
 			comment.transition().delay(300).duration(300).style("opacity", 0.5);
 		};
 		
-		var getIO = function(crud){
-			var result;
-			var r,cud;
-			r = crud.substr(1, 1);
-			cud = crud.substr(0, 1) + crud.substr(2, 2);
-			
-			if(r === "1" && cud !== "000"){
-				result = "IO";
-			} else if(r === "0" && cud !== "000"){
-				result = "O";
-			} else{
-				result = "I";
-			}
-			return result;
-		};
-		
 		var debug = function(){
-			console.log(nodes);
 			nodes[0]["type"] = "EXCEL";
 			nodes[0]["name"] = "debug";
 			d3.selectAll('.nodeName').data(nodes, function(d,i){return d.id;}).text(function(d){return d["name"]});
