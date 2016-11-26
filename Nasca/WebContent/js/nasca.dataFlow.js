@@ -115,92 +115,7 @@ $(function(){
 			
 			//リンク描画
 			var link = svg.select("g").selectAll("path").data(links, function(d,i){return d.source.id + '-' + d.target.id;});
-		    link
-		    	.enter().append("svg:path")
-		    	.style("fill", "none")
-		    	.style("stroke", function(d){
-		    		if(d.visible){
-		    			return "rgb(" + colors[d.colorIndex][0] + "," + colors[d.colorIndex][1] + "," + colors[d.colorIndex][2] + ")";
-		    		}else{
-		    			return "rgb(" + colors[16][0] + "," + colors[16][1] + "," + colors[16][2] + ")";
-		    		}
-		    	})
-		    	.style("stroke-dasharray", function(d){
-		    		if(d.visible || (d.source.visible && d.target.visible)){
-		    			return "0";
-		    		}else{
-		    			return "40,1,4,2,3,3,2,4,1,9999";
-		    		}
-		    	})
-		    	.style("stroke-width", "1.5px")
-		    	.attr("marker-start", function(d){
-		    		if(!d.source.visible && d.target.visible){
-		    			if(!d.target.visible) return null;
-		    			
-		    			if(d.io === "O" || d.io === "IO"){
-			    			if(d.visible){
-			    				return "url(#marker-start-" + d.colorIndex + ")";
-			    			}else{
-			    				return "url(#marker-start-16)";
-			    			}
-			    			
-			    		}
-		    		} else{
-		    			if(!d.source.visible) return null;
-		    			
-		    			if(d.io === "I" || d.io === "IO"){
-			    			if(d.visible){
-			    				return "url(#marker-start-" + d.colorIndex + ")";
-			    			}else{
-			    				return "url(#marker-start-16)";
-			    			}
-			    			
-			    		}
-		    		}
-//		    		if(!d.source.visible) return null;
-//		    		
-//		    		if(d.io === "I" || d.io === "IO"){
-//		    			if(d.visible){
-//		    				return "url(#marker-start-" + d.colorIndex + ")";
-//		    			}else{
-//		    				return "url(#marker-start-16)";
-//		    			}
-//		    			
-//		    		}
-		    	})
-		    	.attr("marker-end", function(d){
-		    		if(!d.source.visible && d.target.visible){
-		    			if(!d.source.visible) return null;
-		    			
-		    			if(d.io === "I" || d.io === "IO"){
-			    			if(d.visible){
-			    				return "url(#marker-end-" + d.colorIndex + ")";
-			    			}else{
-			    				return "url(#marker-end-16)";
-			    			}
-			    		}
-		    		} else{
-		    			if(!d.target.visible) return null;
-		    			
-		    			if(d.io === "O" || d.io === "IO"){
-			    			if(d.visible){
-			    				return "url(#marker-end-" + d.colorIndex + ")";
-			    			}else{
-			    				return "url(#marker-end-16)";
-			    			}
-			    		}
-		    		}
-//		    		if(!d.target.visible) return null;
-//		    		
-//		    		if(d.io === "O" || d.io === "IO"){
-//		    			if(d.visible){
-//		    				return "url(#marker-end-" + d.colorIndex + ")";
-//		    			}else{
-//		    				return "url(#marker-end-16)";
-//		    			}
-//		    		}
-		    	});
-	
+			setLinkStyleAndAttribute(setLinkStyleAndAttribute(link).enter().append("svg:path"));
 			link.exit().remove();
 			
 			//ノード背景描画
@@ -359,10 +274,10 @@ $(function(){
 				}
 				//D3データに存在しない場合は追加します
 				if(!isExists){
+					//ID文字列だと不具合が発生するのでノードオブジェクトへの参照を取得します。
 					target = nodes.filter(function(item, index){
 						if (item.id == json["links"][i]["target"]) return true;
 					});
-					
 					source = nodes.filter(function(item, index){
 						if (item.id == json["links"][i]["source"]) return true;
 					});
@@ -417,6 +332,109 @@ $(function(){
 			commenttext.exit().remove();
 			
 			comment.transition().delay(300).duration(300).style("opacity", 0.5);
+		};
+		
+		var setLinkStyleAndAttribute = function(selection){
+			selection
+		    	.style("fill", "none")
+		    	.style("stroke-width", "1.5px")
+		    	.style("stroke", function(d){
+		    		if(d.visible){
+		    			return "rgb(" + colors[d.colorIndex][0] + "," + colors[d.colorIndex][1] + "," + colors[d.colorIndex][2] + ")";
+		    		}else{
+		    			return "rgb(" + colors[16][0] + "," + colors[16][1] + "," + colors[16][2] + ")";
+		    		}
+		    	})
+		    	.style("stroke-dasharray", function(d){
+		    		if(d.visible || (d.source.visible && d.target.visible)){
+		    			return "0";
+		    		}else{
+		    			return "40,1,4,2,3,3,2,4,1,9999";
+		    		}
+		    	})
+		    	.attr("marker-start", function(d){
+		    		if(!d.source.visible && d.target.visible){
+		    			if(!d.target.visible) return null;
+		    			
+		    			if(d.io === "O" || d.io === "IO"){
+			    			if(d.visible){
+			    				return "url(#marker-start-" + d.colorIndex + ")";
+			    			}else{
+			    				return "url(#marker-start-16)";
+			    			}
+			    			
+			    		}
+		    		} else{
+		    			if(!d.source.visible) return null;
+		    			
+		    			if(d.io === "I" || d.io === "IO"){
+			    			if(d.visible){
+			    				return "url(#marker-start-" + d.colorIndex + ")";
+			    			}else{
+			    				return "url(#marker-start-16)";
+			    			}
+			    			
+			    		}
+		    		}
+		    	})
+		    	.attr("marker-end", function(d){
+		    		if(!d.source.visible && d.target.visible){
+		    			if(!d.source.visible) return null;
+		    			
+		    			if(d.io === "I" || d.io === "IO"){
+			    			if(d.visible){
+			    				return "url(#marker-end-" + d.colorIndex + ")";
+			    			}else{
+			    				return "url(#marker-end-16)";
+			    			}
+			    		}
+		    		} else{
+		    			if(!d.target.visible) return null;
+		    			
+		    			if(d.io === "O" || d.io === "IO"){
+			    			if(d.visible){
+			    				return "url(#marker-end-" + d.colorIndex + ")";
+			    			}else{
+			    				return "url(#marker-end-16)";
+			    			}
+			    		}
+		    		}
+		    	});
+			
+			return selection;
+		};
+		
+		var getMarkerDefinition = function(line, isReverse, isStart){
+			var result;
+			
+			//着目するべきノード。
+			//2段階目の点線描画のため線の向きを反転させている場合があるため着目すのはどちらかを設定します。
+			var subjectNode = isReverse ? line.target : line.source;
+			
+			//マーク（矢印）を表示するかどうかを示します。
+			//着目するべきノードが可視かつ、IOがあればマークを表示します。
+			var marked = subjectNode.visible && (line.io === "IO" || line.io === (isReverse ? (isStart ? "O" : "I") : (isStart ? "I" : "O")))
+
+			if(marked){
+				if(isStart){
+					if(d.visible){
+						result = "#marker-start-" + d.colorIndex;
+	    			}else{
+	    				result = "#marker-start-16";
+	    			}
+				}else{
+					if(d.visible){
+						result = "#marker-end-" + d.colorIndex;
+	    			}else{
+	    				result = "#marker-end-16";
+	    			}
+				}
+				result = "url(" + result + ")";
+			}else{
+				result = null;
+			}
+			
+			return result;
 		};
 		
 		var debug = function(){
