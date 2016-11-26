@@ -354,53 +354,15 @@ $(function(){
 		    	})
 		    	.attr("marker-start", function(d){
 		    		if(!d.source.visible && d.target.visible){
-//		    			if(!d.target.visible) return null;
-//		    			
-//		    			if(d.io === "O" || d.io === "IO"){
-//			    			if(d.visible){
-//			    				return "url(#marker-start-" + d.colorIndex + ")";
-//			    			}else{
-//			    				return "url(#marker-start-16)";
-//			    			}
-//			    			
-//			    		}
 		    			return getMarkerDefinition(d, true, true);
 		    		} else{
-//		    			if(!d.source.visible) return null;
-//		    			
-//		    			if(d.io === "I" || d.io === "IO"){
-//			    			if(d.visible){
-//			    				return "url(#marker-start-" + d.colorIndex + ")";
-//			    			}else{
-//			    				return "url(#marker-start-16)";
-//			    			}
-//			    			
-//			    		}
 		    			return getMarkerDefinition(d, false, true);
 		    		}
 		    	})
 		    	.attr("marker-end", function(d){
 		    		if(!d.source.visible && d.target.visible){
-//		    			if(!d.source.visible) return null;
-//		    			
-//		    			if(d.io === "I" || d.io === "IO"){
-//			    			if(d.visible){
-//			    				return "url(#marker-end-" + d.colorIndex + ")";
-//			    			}else{
-//			    				return "url(#marker-end-16)";
-//			    			}
-//			    		}
 		    			return getMarkerDefinition(d, true, false);
 		    		} else{
-//		    			if(!d.target.visible) return null;
-//		    			
-//		    			if(d.io === "O" || d.io === "IO"){
-//			    			if(d.visible){
-//			    				return "url(#marker-end-" + d.colorIndex + ")";
-//			    			}else{
-//			    				return "url(#marker-end-16)";
-//			    			}
-//			    		}
 		    			return getMarkerDefinition(d, false, false);
 		    		}
 		    	});
@@ -413,7 +375,6 @@ $(function(){
 			
 			//着目するべきノード。
 			//2段階目の点線描画のため線の向きを反転させている場合があるため着目すのはどちらかを設定します。
-			//var subjectNode = isReverse ? line.target : line.source;
 			var subjectNode = isReverse ? (isStart ? line.target : line.source) : (isStart ? line.source : line.target);
 			
 			//マーク（矢印）を表示するかどうかを示します。
@@ -437,7 +398,6 @@ $(function(){
 				result = "url(" + result + ")";
 			}else{
 				result = null;
-				console.log(subjectNode);
 			}
 			
 			return result;
