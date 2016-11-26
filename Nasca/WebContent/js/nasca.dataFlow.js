@@ -195,7 +195,7 @@ $(function(){
 			
 			force.on("tick", function() {
 				link.attr("d", function(d) {
-					//2段階目の点線描画のため線の向きを制御します
+					//2段階目の点線描画のため「ソースノードが非表示」かつ「ターゲットノードが表示」の場合のみ線の向きを反転します。
 					if(!d.source.visible && d.target.visible){
 						return "M" + d.target.x + "," + d.target.y + " " + d.source.x + "," + d.source.y;
 					}else{
@@ -354,50 +354,54 @@ $(function(){
 		    	})
 		    	.attr("marker-start", function(d){
 		    		if(!d.source.visible && d.target.visible){
-		    			if(!d.target.visible) return null;
-		    			
-		    			if(d.io === "O" || d.io === "IO"){
-			    			if(d.visible){
-			    				return "url(#marker-start-" + d.colorIndex + ")";
-			    			}else{
-			    				return "url(#marker-start-16)";
-			    			}
-			    			
-			    		}
+//		    			if(!d.target.visible) return null;
+//		    			
+//		    			if(d.io === "O" || d.io === "IO"){
+//			    			if(d.visible){
+//			    				return "url(#marker-start-" + d.colorIndex + ")";
+//			    			}else{
+//			    				return "url(#marker-start-16)";
+//			    			}
+//			    			
+//			    		}
+		    			return getMarkerDefinition(d, true, true);
 		    		} else{
-		    			if(!d.source.visible) return null;
-		    			
-		    			if(d.io === "I" || d.io === "IO"){
-			    			if(d.visible){
-			    				return "url(#marker-start-" + d.colorIndex + ")";
-			    			}else{
-			    				return "url(#marker-start-16)";
-			    			}
-			    			
-			    		}
+//		    			if(!d.source.visible) return null;
+//		    			
+//		    			if(d.io === "I" || d.io === "IO"){
+//			    			if(d.visible){
+//			    				return "url(#marker-start-" + d.colorIndex + ")";
+//			    			}else{
+//			    				return "url(#marker-start-16)";
+//			    			}
+//			    			
+//			    		}
+		    			return getMarkerDefinition(d, false, true);
 		    		}
 		    	})
 		    	.attr("marker-end", function(d){
 		    		if(!d.source.visible && d.target.visible){
-		    			if(!d.source.visible) return null;
-		    			
-		    			if(d.io === "I" || d.io === "IO"){
-			    			if(d.visible){
-			    				return "url(#marker-end-" + d.colorIndex + ")";
-			    			}else{
-			    				return "url(#marker-end-16)";
-			    			}
-			    		}
+//		    			if(!d.source.visible) return null;
+//		    			
+//		    			if(d.io === "I" || d.io === "IO"){
+//			    			if(d.visible){
+//			    				return "url(#marker-end-" + d.colorIndex + ")";
+//			    			}else{
+//			    				return "url(#marker-end-16)";
+//			    			}
+//			    		}
+		    			return getMarkerDefinition(d, true, false);
 		    		} else{
-		    			if(!d.target.visible) return null;
-		    			
-		    			if(d.io === "O" || d.io === "IO"){
-			    			if(d.visible){
-			    				return "url(#marker-end-" + d.colorIndex + ")";
-			    			}else{
-			    				return "url(#marker-end-16)";
-			    			}
-			    		}
+//		    			if(!d.target.visible) return null;
+//		    			
+//		    			if(d.io === "O" || d.io === "IO"){
+//			    			if(d.visible){
+//			    				return "url(#marker-end-" + d.colorIndex + ")";
+//			    			}else{
+//			    				return "url(#marker-end-16)";
+//			    			}
+//			    		}
+		    			return getMarkerDefinition(d, false, false);
 		    		}
 		    	});
 			
@@ -409,7 +413,8 @@ $(function(){
 			
 			//着目するべきノード。
 			//2段階目の点線描画のため線の向きを反転させている場合があるため着目すのはどちらかを設定します。
-			var subjectNode = isReverse ? line.target : line.source;
+			//var subjectNode = isReverse ? line.target : line.source;
+			var subjectNode = isReverse ? (isStart ? line.target : line.source) : (isStart ? line.source : line.target);
 			
 			//マーク（矢印）を表示するかどうかを示します。
 			//着目するべきノードが可視かつ、IOがあればマークを表示します。
@@ -417,14 +422,14 @@ $(function(){
 
 			if(marked){
 				if(isStart){
-					if(d.visible){
-						result = "#marker-start-" + d.colorIndex;
+					if(line.visible){
+						result = "#marker-start-" + line.colorIndex;
 	    			}else{
 	    				result = "#marker-start-16";
 	    			}
 				}else{
-					if(d.visible){
-						result = "#marker-end-" + d.colorIndex;
+					if(line.visible){
+						result = "#marker-end-" + line.colorIndex;
 	    			}else{
 	    				result = "#marker-end-16";
 	    			}
@@ -432,6 +437,7 @@ $(function(){
 				result = "url(" + result + ")";
 			}else{
 				result = null;
+				console.log(subjectNode);
 			}
 			
 			return result;
