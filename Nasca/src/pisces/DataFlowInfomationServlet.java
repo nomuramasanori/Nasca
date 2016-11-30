@@ -59,7 +59,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	request.setAttribute("parameter", "PROCEDURE1");
+    	request.setAttribute("parameter", "NS");
     	this.doPost(request, response);
     }
 

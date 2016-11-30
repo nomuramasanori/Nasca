@@ -7,6 +7,7 @@ nasca.nodeTree = nasca.nodeTree || {};
 $(function(){
 	nasca.nodeTree = (function(){
 		var jstree;
+		var currentJson;
 		
 		//初期化処理
 		(function(){
@@ -51,10 +52,17 @@ $(function(){
 					dataType: "json",
 					data : {parameter : param},
 					success: function(json, textStatus){
-						setBackground(json.nodes);
-						nasca.dataFlow.draw(json);
+						currentJson = json;
+						setBackground(currentJson.nodes);
+						nasca.dataFlow.draw(currentJson);
 					}
 				});
+			});
+			
+			//イベント追加
+			$('#jstree_demo_div').on('open_node.jstree', function (e, data) {
+				//無駄があるのでそのうち改善する
+				setBackground(currentJson.nodes);
 			});
 		})();
 		

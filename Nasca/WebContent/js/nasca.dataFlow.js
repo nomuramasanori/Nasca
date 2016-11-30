@@ -30,7 +30,7 @@ $(function(){
 				.linkDistance(60)
 				.charge(-8000)
 				.gravity(0.4)
-				.friction(0.7);
+				.friction(0.8);
 			
 			svg = d3.select("body")
 				.append("svg")
@@ -42,6 +42,7 @@ $(function(){
 				.call(d3.behavior.zoom().scaleExtent([0.3, 6]).on("zoom", function(){
 					svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 				}))
+				.on("dblclick.zoom", null)
 				.append("g")
 				.attr("id", "test");
 			
@@ -174,7 +175,7 @@ $(function(){
 				.on("mousedown", function(d){
 					d3.event.stopPropagation();
 				})
-				.on("click", function(d){
+				.on("dblclick", function(d){
 					d3.event.stopPropagation();
 					$('#jstree_demo_div').jstree('select_node', d.id);
 				})
