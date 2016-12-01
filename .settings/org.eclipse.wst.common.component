@@ -2,6 +2,9 @@
     <wb-module deploy-name="Nasca">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <dependent-module archiveName="servlet-api.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/var/servlet-api">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="java-output-path" value="/Nasca/build/classes"/>
         <property name="context-root" value="Nasca"/>
     </wb-module>
