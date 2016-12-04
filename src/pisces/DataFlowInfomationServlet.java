@@ -2,9 +2,11 @@ package pisces;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,6 +24,35 @@ import com.fasterxml.jackson.core.JsonGenerator;
 public class DataFlowInfomationServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
+	private enum Direction{
+		I,O,IO,None;
+		
+		public Direction reverse(){
+			Direction result = Direction.None;
+			if(this == Direction.IO || this == Direction.None) result = this;
+			if(this == Direction.I) result = Direction.O;
+			if(this == Direction.O) result =  Direction.I;
+			return result;
+		}
+		
+		public Direction add(Direction direction){
+			Direction result = this;
+			if(direction == Direction.IO){
+				result = direction;
+			}
+			if(this == Direction.None){
+				result = direction;
+			}
+			if(this == Direction.I && direction == Direction.O){
+				result = Direction.IO;
+			}
+			if(this == Direction.O && direction == Direction.I){
+				result = Direction.IO;
+			}
+			return result;
+		}
+	}
+	
 	private class AddtionalNodeInfomation{
 		private int distance;
 		public int getDistance() {
@@ -35,16 +66,67 @@ public class DataFlowInfomationServlet extends HttpServlet {
 	private class AddtionalLinkInfomation{
 		private Dependency dependency;
 		private int distance;
+		private Direction direction;
+		
 		public Dependency getDependency() {
 			return dependency;
 		}
 		public int getDistance() {
 			return distance;
 		}
-		public AddtionalLinkInfomation(Dependency dependency, int distance){
+		public Direction getDirection() {
+			return direction;
+		}
+		public void setDirection(Direction direction) {
+			this.direction = direction;
+		}
+		public AddtionalLinkInfomation(Dependency dependency, int distance, Direction direction){
 			this.dependency = dependency;
 			this.distance = distance;
+			this.direction = direction;
 		}
+		public void addDirection(Direction direction){
+			this.setDirection(this.getDirection().add(direction));
+		}
+	}
+	
+	private class LinkKey{
+		private Element source;
+		private Element target;
+		public Element getSource() {
+			return source;
+		}
+		public Element getTarget() {
+			return target;
+		}
+		
+		public LinkKey(Element source, Element target){
+			this.source = source;
+			this.target = target;
+		}
+
+		@Override
+		public boolean equals(Object obj){
+			LinkKey linkKey = null;
+			
+	        // オブジェクトがnullでないこと
+	        if (obj == null) {
+	            return false;
+	        }
+	        // オブジェクトが同じ型であること
+	        if (obj instanceof LinkKey) {
+	            linkKey = (LinkKey)obj;
+	        }else{
+	        	return false;
+	        }
+	        // 同値性を比較
+	        return this.getSource().equals(linkKey.getSource()) && this.getTarget().equals(linkKey.getTarget()); 
+		}
+		
+		@Override
+	    public int hashCode() {
+	        return Objects.hash(this.getSource().getId() + this.getTarget().getId());
+	    }
 	}
        
     /**
@@ -59,7 +141,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	request.setAttribute("parameter", "NS");
+    	request.setAttribute("parameter", "group2.data1/group2.process1");
     	this.doPost(request, response);
     }
 
@@ -68,7 +150,6 @@ public class DataFlowInfomationServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();
-		ElementDAO elementDAO = new ElementDAO();
 
 		// JsonFactoryの生成
 		JsonFactory jsonFactory = new JsonFactory();
@@ -76,7 +157,8 @@ public class DataFlowInfomationServlet extends HttpServlet {
 		JsonGenerator generator = jsonFactory.createGenerator(out);
 		
 		Map<Element, AddtionalNodeInfomation> nodes = new HashMap<Element, AddtionalNodeInfomation>();
-		Map<String, AddtionalLinkInfomation> links = new HashMap<String, AddtionalLinkInfomation>();
+		Map<LinkKey, AddtionalLinkInfomation> links = new HashMap<LinkKey, AddtionalLinkInfomation>(); 
+		List<Element> groups = new ArrayList<Element>();
 
 		//デバッグのためGETからでも動作するようにします
 		String[] nodeStrings = null;
@@ -86,69 +168,111 @@ public class DataFlowInfomationServlet extends HttpServlet {
 			nodeStrings = request.getParameter("parameter").split("/");
 		}
 		
+		//1段階目の取得■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 		for(int i=0 ; i < nodeStrings.length ; i++){
 			//空文字の場合はスキップ
 			if(nodeStrings[i] == "") continue;
 			
-			Element element = elementDAO.selectByID(nodeStrings[i]);
-			
-			//名前空間の場合はスキップ
-			if(!element.isLeaf()) continue;
-			
-			//依存情報のないノードが存在する可能性があるのでパラメータで渡されたIDをノードリストに追加します。
-			nodes.put(element, new AddtionalNodeInfomation(1));
-			
-			//依存する要素を取得し結果変数に格納します。
-			//結果変数はHashSetなので重複を考慮しなくても問題ありません。
-			List<Dependency> dependencies = element.getDependency();
-			for(Dependency dependency : dependencies){
-				nodes.put(dependency.element, new AddtionalNodeInfomation(1));
-				links.put(element.getId()+"-"+dependency.element.getId() , new AddtionalLinkInfomation(dependency, 1));
-			}
-			
-			//依存される要素を取得し結果変数に格納します。
-			//結果変数はHashSetなので重複を考慮しなくても問題ありません。
-			List<Dependency> dependenciesDependOnMe = element.getDependencyDependOnMe();
-			for(Dependency dependencyDependOnMe : dependenciesDependOnMe){
-				nodes.put(dependencyDependOnMe.element, new AddtionalNodeInfomation(1));
-				links.put(dependencyDependOnMe.element.getId()+"-"+element.getId() , new AddtionalLinkInfomation(dependencyDependOnMe, 1));
+			Element element = Element.getElement(nodeStrings[i]);
+
+			this.putNodeAndLink(nodes, links, element, 1);
+			if(!element.isLeaf()){
+				for(Element child : element.getChild()){
+					this.putNodeAndLink(nodes, links, child, 1);
+				}
+				
+				groups.add(element);
 			}
 		}
+		
+		//2段階目の取得■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 		
 		//2段階目を取得する際に、ループを回すコレクションに対し要素追加を行うとConcurrentModificationExceptionが発生するためコピーします
 		Map<Element, AddtionalNodeInfomation> nodes2 = new HashMap<Element, AddtionalNodeInfomation>();
 		nodes2.putAll(nodes);
 		
 		//2段階目を取得します
-		for(Map.Entry<Element, AddtionalNodeInfomation> element : nodes.entrySet()){
-			List<Dependency> dependencies = element.getKey().getDependency();
-			for(Dependency dependency : dependencies){
-				if(!nodes2.containsKey(dependency.element)){
-					nodes2.put(dependency.element, new AddtionalNodeInfomation(2));
-				}
-				if(!links.containsKey(element.getKey().getId()+"-"+dependency.element.getId())){
-					links.put(element.getKey().getId()+"-"+dependency.element.getId(), new AddtionalLinkInfomation(dependency, 2));
+		for(Map.Entry<Element, AddtionalNodeInfomation> nodeSet : nodes.entrySet()){
+			this.putNodeAndLink(nodes2, links, nodeSet.getKey(), 2);
+		}
+		
+		//グループ化■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+		Map<Element, AddtionalNodeInfomation> nodes3 = new HashMap<Element, AddtionalNodeInfomation>();
+		Map<LinkKey, AddtionalLinkInfomation> links3 = new HashMap<LinkKey, AddtionalLinkInfomation>();
+		
+		for(Map.Entry<Element, AddtionalNodeInfomation> nodeSet : nodes2.entrySet()){
+			boolean isGroupNode = false;
+			
+			for(Element group : groups){
+				//グループ内のノード以外を対象とします
+				if(group.contain(nodeSet.getKey().getId())){
+					isGroupNode = true;
+					break;
 				}
 			}
 			
-			List<Dependency> dependenciesDependOnMe = element.getKey().getDependencyDependOnMe();
-			for(Dependency dependencyDependOnMe : dependenciesDependOnMe){
-				if(!nodes2.containsKey(dependencyDependOnMe.element)){
-					nodes2.put(dependencyDependOnMe.element, new AddtionalNodeInfomation(2));
+			if(!isGroupNode){
+				nodes3.put(nodeSet.getKey(), nodeSet.getValue());
+			}
+		}
+		for(Map.Entry<LinkKey, AddtionalLinkInfomation> linkSet : links.entrySet()){
+			boolean isGroupLink = false;
+			LinkKey linkKey = null;
+			Element source = linkSet.getKey().getSource();
+			Element target = linkSet.getKey().getTarget();
+			
+			for(Element group : groups){
+				//グループ内のリンク以外を対象とします
+				if(group.contain(linkSet.getKey().getSource()) && group.contain(linkSet.getKey().getTarget())){
+					isGroupLink = true;
+					break;
+				} else if(group.contain(linkSet.getKey().getSource())){
+					//グループ内のノードはグループノードに昇格します（ソース側）
+					source = group;
+				} else if(group.contain(linkSet.getKey().getTarget())){
+					//グループ内のノードはグループノードに昇格します（ターゲット側）
+					target = group;
 				}
-				if(!links.containsKey(dependencyDependOnMe.element.getId()+"-"+element.getKey().getId())){
-					links.put(dependencyDependOnMe.element.getId()+"-"+element.getKey().getId(), new AddtionalLinkInfomation(dependencyDependOnMe, 2));
+			}
+			
+			linkKey = new LinkKey(source, target);
+			
+			if(!isGroupLink){
+				//昇格した結果、そのリンクがすでに存在していれば集約します。
+				if(links3.containsKey(linkKey)){
+					this.summarizeLink(linkSet.getValue(), links3.get(linkKey), false);
+				}else{
+					links3.put(linkKey, linkSet.getValue());
 				}
 			}
 		}
 		
-		//JSON生成の開始
+		//逆向きリンクの集約■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+		Map<LinkKey, AddtionalLinkInfomation> links4 = new HashMap<LinkKey, AddtionalLinkInfomation>();
+		
+		for(Map.Entry<LinkKey, AddtionalLinkInfomation> linkSet3 : links3.entrySet()){
+			boolean duplex = false;
+			for(Map.Entry<LinkKey, AddtionalLinkInfomation> linkSet4 : links4.entrySet()){
+				//ソースとターゲットが同一ノードで逆向きとなっているリンクがあれば集約します
+				if(linkSet3.getKey().getSource() == linkSet4.getKey().getTarget() && linkSet3.getKey().getTarget() == linkSet4.getKey().getSource()){			
+					this.summarizeLink(linkSet3.getValue(), linkSet4.getValue(), true);
+					duplex = true;
+					break;
+				}
+			}
+			
+			if(!duplex){
+				links4.put(linkSet3.getKey(), linkSet3.getValue());
+			}
+		}
+
+		//JSON生成■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 		generator.writeStartObject();
 		
 		//ノード情報を作成します。
 		generator.writeFieldName("nodes");
 		generator.writeStartArray();
-	    for(Map.Entry<Element, AddtionalNodeInfomation> element : nodes2.entrySet()) {
+	    for(Map.Entry<Element, AddtionalNodeInfomation> element : nodes3.entrySet()) {
 	    	generator.writeStartObject();
 	    	generator.writeStringField("id", element.getKey().getId());
 	    	generator.writeStringField("name", element.getKey().getName());
@@ -163,16 +287,15 @@ public class DataFlowInfomationServlet extends HttpServlet {
 		//リンク情報を作成します
 		generator.writeFieldName("links");
 		generator.writeStartArray();
-	    for(Map.Entry<String, AddtionalLinkInfomation> link : links.entrySet()) {
-	    	String[] splittedKey = link.getKey().split("-");
-	    	Dependency depndency = link.getValue().getDependency();
+	    for(Map.Entry<LinkKey, AddtionalLinkInfomation> linkSet : links4.entrySet()) {
+	    	Dependency depndency = linkSet.getValue().getDependency();
 	        generator.writeStartObject();
-	        generator.writeStringField("source", splittedKey[0]);
-	    	generator.writeStringField("target", splittedKey[1]);
+	        generator.writeStringField("source", linkSet.getKey().getSource().getId());
+	    	generator.writeStringField("target", linkSet.getKey().getTarget().getId());
 	    	generator.writeStringField("remark", depndency.getRemark());
-	    	generator.writeStringField("io", this.getIO(depndency.getDependencyType()));
+	    	generator.writeStringField("io", linkSet.getValue().getDirection().toString());
 	    	generator.writeStringField("colorIndex", String.valueOf(Integer.parseInt(depndency.getDependencyType(), 2)));
-	    	generator.writeBooleanField("visible", link.getValue().getDistance() == 2 ? false : true);
+	    	generator.writeBooleanField("visible", linkSet.getValue().getDistance() == 2 ? false : true);
 	    	generator.writeEndObject();
 	    }
 		generator.writeEndArray();
@@ -184,20 +307,65 @@ public class DataFlowInfomationServlet extends HttpServlet {
 		generator.flush();
 	}
 	
-	//CRUD情報からIO情報（矢印の方向）
-	private String getIO(String crud){
-		String result;
-		String r;
-		String cud;
-		r = crud.substring(1,2);
-		cud = crud.substring(0, 1) + crud.substring(2, 4);
+	private void putNodeAndLink(Map<Element, AddtionalNodeInfomation> nodes, Map<LinkKey, AddtionalLinkInfomation> links, Element element, Integer distance){
+		//自分自身をノードリストに追加します。
+		//結果変数はHashSetなので重複を考慮しなくても本来は問題ないですが、重複した場合後勝ちとなるため、先勝ちとなるよう存在チェックを行います。
+		if(!nodes.containsKey(element)){
+			nodes.put(element, new AddtionalNodeInfomation(distance));
+		}
 		
-		if(r.equals("1") && !cud.equals("000")){
-			result = "IO";
-		} else if(r.equals("0") && !cud.equals("000")){
-			result = "O";
+		//依存する要素を取得し結果変数に格納します。
+		//結果変数はHashSetなので重複を考慮しなくても本来は問題ないですが、重複した場合後勝ちとなるため、先勝ちとなるよう存在チェックを行います。
+		List<Dependency> dependencies = element.getDependency();
+		for(Dependency dependency : dependencies){
+			if(!nodes.containsKey(dependency.getElement())){
+				nodes.put(dependency.getElement(), new AddtionalNodeInfomation(distance));
+			}
+			LinkKey linkKey = new LinkKey(element, dependency.getElement());
+			if(!links.containsKey(linkKey)){
+				links.put(linkKey, new AddtionalLinkInfomation(dependency, distance, this.getDrection(dependency)));
+			}
+		}
+		
+		//依存される要素を取得し結果変数に格納します。
+		//結果変数はHashSetなので重複を考慮しなくても本来は問題ないですが、重複した場合後勝ちとなるため、先勝ちとなるよう存在チェックを行います。
+		List<Dependency> dependenciesDependOnMe = element.getDependencyDependOnMe();
+		for(Dependency dependencyDependOnMe : dependenciesDependOnMe){
+			if(!nodes.containsKey(dependencyDependOnMe.getElement())){
+				nodes.put(dependencyDependOnMe.getElement(), new AddtionalNodeInfomation(distance));
+			}
+			LinkKey linkKey = new LinkKey(dependencyDependOnMe.getElement(), element);
+			if(!links.containsKey(linkKey)){
+				links.put(linkKey, new AddtionalLinkInfomation(dependencyDependOnMe, distance, this.getDrection(dependencyDependOnMe)));
+			}
+		}
+	}
+	
+	private void summarizeLink(AddtionalLinkInfomation source, AddtionalLinkInfomation target, boolean isReverseDirection){
+		target.getDependency().setDependencyTypeCreate(target.getDependency().isDependencyTypeCreate() || source.getDependency().isDependencyTypeCreate());
+		target.getDependency().setDependencyTypeRead(target.getDependency().isDependencyTypeRead() || source.getDependency().isDependencyTypeRead());
+		target.getDependency().setDependencyTypeUpdate(target.getDependency().isDependencyTypeUpdate() || source.getDependency().isDependencyTypeUpdate());
+		target.getDependency().setDependencyTypeDelete(target.getDependency().isDependencyTypeDelete() || source.getDependency().isDependencyTypeDelete());
+		target.getDependency().setRemark(target.getDependency().getRemark() + source.getDependency().getRemark());
+		if(isReverseDirection){
+			target.addDirection(source.getDirection().reverse());
+		}else{
+			target.addDirection(source.getDirection());
+		}
+	}
+	
+	//CRUD情報からIO情報（矢印の方向）
+	private Direction getDrection(Dependency dependency){
+		Direction result;
+		
+		if(dependency.isDependencyTypeRead() && (dependency.isDependencyTypeCreate() || dependency.isDependencyTypeUpdate() || dependency.isDependencyTypeDelete())){
+			result = Direction.IO;
+		} else if(!dependency.isDependencyTypeRead() && (dependency.isDependencyTypeCreate() || dependency.isDependencyTypeUpdate() || dependency.isDependencyTypeDelete())){
+			result = Direction.O;
+		} else if(dependency.isDependencyTypeRead() && !(dependency.isDependencyTypeCreate() || dependency.isDependencyTypeUpdate() || dependency.isDependencyTypeDelete())){
+			result = Direction.I;
 		} else{
-			result = "I";
+			result = Direction.None;
 		}
 		return result;
 	}

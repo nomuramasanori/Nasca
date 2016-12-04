@@ -1,12 +1,12 @@
 package pisces;
 
 public class Dependency {
-	Element element;
-	boolean dependencyTypeCreate;
-	boolean dependencyTypeRead;
-	boolean dependencyTypeUpdate;
-	boolean dependencyTypeDelete;
-	String remark;
+	private Element element;
+	private boolean dependencyTypeCreate;
+	private boolean dependencyTypeRead;
+	private boolean dependencyTypeUpdate;
+	private boolean dependencyTypeDelete;
+	private String remark;
 	
 	public Element getElement() {
 		return element;

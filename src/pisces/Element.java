@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class Element {
-	private ElementDAO elementDAO;
-	private DependencyDAO dependencyDAO;
+	private static ElementDAO elementDAO = new ElementDAO();
+	private static DependencyDAO dependencyDAO = new DependencyDAO();
 	
 	private String id;
 	private String name;
@@ -13,9 +13,10 @@ public class Element {
 	private String remark;
 	private String svgFile;
 	
-	public Element(){
-		this.elementDAO = new ElementDAO();
-		this.dependencyDAO = new DependencyDAO();
+	public Element(){}
+	
+	public static Element getElement(String id){
+		return elementDAO.selectByID(id);
 	}
 	
 	public String getId() {
@@ -50,20 +51,40 @@ public class Element {
 	}
 	
 	public List<Dependency> getDependency(){
-		return this.dependencyDAO.SelectByElementID(this.id);
+		return dependencyDAO.SelectByElementID(this.id);
 	}
 	
 	public List<Dependency> getDependencyDependOnMe(){
-		return this.dependencyDAO.SelectByDependencyElementID(this.id);
+		return dependencyDAO.SelectByDependencyElementID(this.id);
+	}
+	
+	public List<Element> getChild(){
+		return elementDAO.selectChild(this.id);
 	}
 	
 	public boolean isLeaf(){
 		boolean result = true;
 		
-		List<Element> elements = this.elementDAO.selectChild(this.id);
+		List<Element> elements = this.getChild();
 		if(elements.size() > 0) result = false;
 		
 		return result;
+	}
+	
+	public boolean contain(String id){
+		boolean result = false;
+		
+		if(id.length() <= this.getId().length()){
+			result = false;
+		} else if(id.substring(0, this.getId().length() + 1).equals(this.getId() + ".")){
+			result = true;
+		}
+		
+		return result;
+	}
+	
+	public boolean contain(Element element){
+		return this.contain(element.getId());
 	}
 	
 	@Override
