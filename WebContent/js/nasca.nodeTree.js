@@ -38,25 +38,7 @@ $(function(){
 			
 			//イベント追加
 			$('#jstree_demo_div').on('changed.jstree', function (e, data) {			
-				//選択されたオブジェクトを"/"区切りで連結しデータ取得のパラメータを作成します。
-				var nodesString = "";
-				for(i = 0, j = data.selected.length; i < j; i++) {
-					nodesString = nodesString + data.instance.get_node(data.selected[i]).id + "/"
-				} 
-				
-				var param = nodesString.slice(0,-1);
-				
-				$.ajax({
-					type: "POST",
-					url: "DataFlowInfomation",
-					dataType: "json",
-					data : {parameter : param},
-					success: function(json, textStatus){
-						currentJson = json;
-						setBackground(currentJson.nodes);
-						nasca.dataFlow.draw(currentJson);
-					}
-				});
+				refresh();
 			});
 			
 			//イベント追加
@@ -65,6 +47,28 @@ $(function(){
 				setBackground(currentJson.nodes);
 			});
 		})();
+		
+		var refresh = function(){
+			//選択されたオブジェクトを"/"区切りで連結しデータ取得のパラメータを作成します。
+			var nodesString = "";
+			for(i = 0, j = jstree.get_selected().length; i < j; i++) {
+				nodesString = nodesString + jstree.get_selected()[i] + "/"
+			} 
+			
+			var param = nodesString.slice(0,-1);
+			
+			$.ajax({
+				type: "POST",
+				url: "DataFlowInfomation",
+				dataType: "json",
+				data : {parameter : param},
+				success: function(json, textStatus){
+					currentJson = json;
+					setBackground(currentJson.nodes);
+					nasca.dataFlow.draw(currentJson);
+				}
+			});
+		};
 		
 		var setBackground = function(nodes){
 			var i;
@@ -86,10 +90,24 @@ $(function(){
 			}
 		};
 		
+		var select = function(nodeID){
+			jstree.select_node(nodeID);
+		}
+		
+		var selectChild = function(nodeID){
+			//複数の子ノードが存在する場合ひとつずつchangedイベントが発生し不具合となるため第2引数にtrueを指定しイベントの発生を抑止します
+			jstree.select_node(jstree.get_node(nodeID).children, true);
+			jstree.deselect_node(nodeID);
+		};
+		
 		var escapePeriod = function(str){
 			return str.split(".").join("\\.");
 		}
 		
-		return{}
+		return{
+			select : select,
+			selectChild : selectChild,
+			refresh : refresh
+		}
 	})();
 });

@@ -53,4 +53,23 @@
 	where
 		dpd.dpdeid = #{elementID}
   </select>
+  <insert id="insert">
+    insert into t_depndncy (
+		elmtid,
+		dpdeid,
+		dpdtpc,
+		dpdtpr,
+		dpdtpu,
+		dpdtpd,
+		remark
+    ) values (
+		#{elmtid},
+		#{dpdeid},
+		#{dpdtpc},
+		#{dpdtpr},
+		#{dpdtpu},
+		#{dpdtpd},
+		#{remark}
+    )
+  </insert>
 </mapper>

@@ -11,10 +11,12 @@
 <script type="text/javascript" src="js/jquery-3.1.0.min.js" charset="utf-8"></script>
 <script type="text/javascript" src="js/jstree.min.js" charset="utf-8"></script>
 <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/d3-context-menu.js" charset="utf-8"></script>
 <script type="text/javascript" src="js/nasca.js" charset="utf-8"></script>
 <script type="text/javascript" src="js/nasca.nodeTree.js" charset="utf-8"></script>
 <script type="text/javascript" src="js/nasca.dataFlow.js" charset="utf-8"></script>
 <link rel="stylesheet" href="js/themes/default/style.min.css" />
+<link rel="stylesheet" href="css/d3-context-menu.css" />
 <link rel="stylesheet" href="css/pisces.css" />
 <title>Insert title here</title>
 </head>

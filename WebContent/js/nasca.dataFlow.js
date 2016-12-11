@@ -18,6 +18,7 @@ $(function(){
 		      		[64,128,196],　[64,196,128],　[96,96,96], [0,0,0],
 		      		[230,230,230]	//半透明リンク用
 		];
+		var addingLink = {};
 		
 		//初期化処理
 		(function(){
@@ -108,6 +109,19 @@ $(function(){
 			
 	
 			svg.append("svg:g");
+			
+			//★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★		
+			var w = d3
+				.select(window)
+				.on("mousemove", function(){
+					if(!addingLink.state) return;
+					
+					addingLink.guide.attr("d", "M" + addingLink.source.x + "," + addingLink.source.y + " " + d3.event.offsetX + "," + d3.event.offsetY);
+				})
+				.on("click", function(){
+					addingLink.state = false;
+					addingLink.guide.remove();
+				});
 		})();
 		
 		var draw = function(json){
@@ -117,6 +131,10 @@ $(function(){
 			//リンク描画
 			var link = svg.select("g").selectAll("path").data(links, function(d,i){return d.source.id + '-' + d.target.id;});
 			setLinkStyleAndAttribute(setLinkStyleAndAttribute(link).enter().append("svg:path"));
+			link.on('contextmenu', d3.contextMenu(menu, {
+				onOpen: function() {},
+				onClose: function() {}
+			}));
 			link.exit().remove();
 			
 			//ノード背景描画
@@ -175,9 +193,33 @@ $(function(){
 				.on("mousedown", function(d){
 					d3.event.stopPropagation();
 				})
-				.on("dblclick", function(d){
+				.on("click", function(d){
+					if (d3.event.defaultPrevented) return;
 					d3.event.stopPropagation();
-					$('#jstree_demo_div').jstree('select_node', d.id);
+					
+					if(addingLink.state){
+						addLink(addingLink.source, d);
+						nasca.nodeTree.refresh();
+					}else{
+						nasca.nodeTree.select(d.id);
+					}
+					
+					addingLink.state = false;
+					addingLink.guide.remove();
+				})
+				.on('contextmenu', d3.contextMenu(menu, {
+					onOpen: function() {
+//						console.log('opened!');
+					},
+					onClose: function() {
+//						console.log('closed!');
+					}
+				}))
+				.on("mousemove", function(d){
+					if(addingLink.state){
+						d3.event.stopPropagation();
+						addingLink.guide.attr("d", "M" + addingLink.source.x + "," + addingLink.source.y + " " + d.x + "," + d.y);
+					}
 				})
 				.call(force.drag);
 			img.exit().remove();
@@ -194,7 +236,16 @@ $(function(){
 			    .attr("fill", "darkgray");
 			text.exit().remove();	
 			
-			force.on("tick", function() {
+			force.on("tick", function(e) {
+				//★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+//				// Push different nodes in different directions for clustering.
+//				  var k = 150 * e.alpha;
+//				  nodes.forEach(function(o, i) {
+//					  console.log(i&1);
+//				    o.x += i & 2 ? k : -k;
+//				    o.y += i & 1 ? k : -k;
+//				  });
+				  
 				link.attr("d", function(d) {
 					//2段階目の点線描画のため「ソースノードが非表示」かつ「ターゲットノードが表示」の場合のみ線の向きを反転します。
 					if(!d.source.visible && d.target.visible){
@@ -205,14 +256,14 @@ $(function(){
 			    });
 			    
 			    node
-			   .attr({cx: function(d) { return d.x; },
-				   	  cy: function(d) { return d.y; }});
+			    .attr({cx: function(d) { return d.x; }, cy: function(d) { return d.y; }});
+
 			    img
-				   .attr({x: function(d) { return d.x - 16; },
-					   	  y: function(d) { return d.y - 16; }});
-	
-			    text.attr('x', function(d) { return d.x; })
-		        .attr('y', function(d) { return d.y + 32; });
+				   .attr({x: function(d) { return d.x - 16; }, y: function(d) { return d.y - 16; }});
+
+			    text
+			    .attr('x', function(d) { return d.x; })
+			    .attr('y', function(d) { return d.y + 32; });
 			});	
 	
 			force.start();
@@ -404,12 +455,76 @@ $(function(){
 			return result;
 		};
 		
+		var addLink = function(source, target){
+			var param = {
+				"source": source,
+				"target": target 
+			};
+			
+			console.log(JSON.stringify(param));
+			
+			$.ajax({
+				type: "POST",
+				url: "LinkRegister",
+				dataType: "json",
+				data : {parameter : JSON.stringify(param)},
+				success: function(json, textStatus){
+				}
+			});
+		};
+		
 		var debug = function(){
 			nodes[0]["type"] = "EXCEL";
 			nodes[0]["name"] = "debug";
 			d3.selectAll('.nodeName').data(nodes, function(d,i){return d.id;}).text(function(d){return d["name"]});
 			d3.selectAll("path").style("stroke", "url(#fadeout)");
 		};
+		
+		// Define your menu
+		var menu = [
+			{
+				title: 'Expand',
+				action: function(elm, d, i) {
+					nasca.nodeTree.selectChild(d.id);
+				}
+			},
+			{
+				title: 'Add link',
+				action: function(elm, d, i) {
+					d3.event.stopPropagation();
+					
+					addingLink.state = true;
+					addingLink.source = d;
+					addingLink.guide = svg.select("g").append("path").style("stroke","black");
+				}
+			},
+			{
+				title: function() {
+					if (menu[3].disabled) {
+						return 'Re-enable menu item #4';
+					} else {
+						return 'Disable menu item #4';
+					}
+				},
+				action: function(elm, d, i) {
+					menu[3].disabled = !menu[3].disabled;
+				}
+			},
+			{
+				title: 'Item #4',
+				disabled: false,
+				action: function(elm, d, i) {
+					console.log('You have clicked the 4th item!');
+					console.log('The data for this circle is: ' + d);
+				}
+			},
+			{
+				divider: true
+			},
+			{
+				title: 'Header'
+			}
+		]
 		
 		return{
 			draw : draw,
