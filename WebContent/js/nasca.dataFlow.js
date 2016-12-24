@@ -16,7 +16,7 @@ $(function(){
 		      		[150,80,90], [0,64,255],　[100,255,100],　[64,160,255],
 		      		[255,0,64],　[160,32,32],　[196,128,64],　[128,196,64],
 		      		[64,128,196],　[64,196,128],　[96,96,96], [0,0,0],
-		      		[230,230,230]	//半透明リンク用
+		      		[245,245,245]	//半透明リンク用
 		];
 		var addingLink = {};
 		
@@ -31,7 +31,7 @@ $(function(){
 				.linkDistance(60)
 				.charge(-8000)
 				.gravity(0.4)
-				.friction(0.8);
+				.friction(0.7);
 			
 			svg = d3.select("body")
 				.append("svg")
@@ -62,7 +62,7 @@ $(function(){
 			    	return "marker-end-" + i;
 			    })
 			    .attr("viewBox", "0 -5 10 10")
-			    .attr("refX", 32)	//矢印の位置
+			    .attr("refX", 10)	//矢印の位置
 			    .attr("refY", 0.0)	//矢印の位置
 			    .attr("markerWidth", 6)
 			    .attr("markerHeight", 6)
@@ -81,7 +81,7 @@ $(function(){
 			    	return "marker-start-" + i;
 			    })
 			    .attr("viewBox", "0 -5 10 10")
-			    .attr("refX", -22)	//矢印の位置
+			    .attr("refX", 0)	//矢印の位置
 			    .attr("refY", 0)	//矢印の位置
 			    .attr("markerWidth", 6)
 			    .attr("markerHeight", 6)
@@ -92,22 +92,6 @@ $(function(){
 					return "rgb(" + d[0] + "," + d[1] + "," + d[2] + ")";
 				});
 			
-			//線のグラデーション定義（終端）
-			linearGradient = svg.append("svg:defs")
-				.append("radialGradient")
-				.attr("id", "fadeout-end")
-				.attr("cx", "80%")
-			linearGradient.append("stop").attr("offset","50%").attr("stop-color","rgb(0,0,180)");
-			linearGradient.append("stop").attr("offset","80%").attr("stop-color","rgb(250,150,0)");
-			
-			//線のグラデーション定義（始端）
-			linearGradient = svg.append("svg:defs")
-				.append("linearGradient")
-				.attr("id", "fadeout-start");
-			linearGradient.append("stop").attr("offset","50%").attr("stop-color","rgb(0,220,0)");
-			linearGradient.append("stop").attr("offset","80%").attr("stop-color","rgb(255,0,255)");
-			
-	
 			svg.append("svg:g");
 			
 			//★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★		
@@ -119,8 +103,10 @@ $(function(){
 					addingLink.guide.attr("d", "M" + addingLink.source.x + "," + addingLink.source.y + " " + d3.event.offsetX + "," + d3.event.offsetY);
 				})
 				.on("click", function(){
-					addingLink.state = false;
-					addingLink.guide.remove();
+					if(addingLink.state){
+						addingLink.state = false;
+						addingLink.guide.remove();
+					}
 				});
 		})();
 		
@@ -130,20 +116,20 @@ $(function(){
 			
 			//リンク描画
 			var link = svg.select("g").selectAll("path").data(links, function(d,i){return d.source.id + '-' + d.target.id;});
-			setLinkStyleAndAttribute(setLinkStyleAndAttribute(link).enter().append("svg:path"));
-			link.on('contextmenu', d3.contextMenu(menu, {
-				onOpen: function() {},
-				onClose: function() {}
-			}));
+			setLinkStyleAndAttribute(setLinkStyleAndAttribute(link).enter().append("svg:path").attr("id", function(d,i){return d.source.id + '-' + d.target.id;}));
+			link
+				.on('contextmenu', d3.contextMenu(menu2, {
+					onOpen: function() {},
+					onClose: function() {}
+				}))
+				.on("mouseover", function(d){
+					$("#" + d.source.id + '-' + d.target.id).css("stroke-width", "3.0px");
+				})
+				.on("mouseleave", function(d){
+					$("#" + d.source.id + '-' + d.target.id).css("stroke-width", "1.5px");
+				});
 			link.exit().remove();
 			
-			//ノード背景描画
-			var node = svg.selectAll("circle").data(nodes, function(d,i){return d.id;});
-			node.enter().append("circle")
-				.attr({r: 20, opacity: 1.0})
-				.attr("fill", "white");
-			node.exit().remove();
-	
 			//ノード描画
 			var img = svg.selectAll("image").data(nodes, function(d,i){return d.id;});
 			img
@@ -198,22 +184,35 @@ $(function(){
 					d3.event.stopPropagation();
 					
 					if(addingLink.state){
-						addLink(addingLink.source, d);
-						nasca.nodeTree.refresh();
+						nasca.utility.showModal(
+								generateHtmlLinkRegister(null),
+								function(){
+									nasca.utility.ajaxPost(
+											"LinkRegister/insert",
+											{
+												"source": addingLink.source,
+												"target": d,
+												"dependencyTypeC": $("[name=CRUDC]").prop("checked"),
+												"dependencyTypeR": $("[name=CRUDR]").prop("checked"),
+												"dependencyTypeU": $("[name=CRUDU]").prop("checked"),
+												"dependencyTypeD": $("[name=CRUDD]").prop("checked"),
+												"remark": $("[name=remark]").val()
+											},
+											nasca.nodeTree.refresh
+									);
+							},
+							null
+						);
+						
+						addingLink.state = false;
+						addingLink.guide.remove();
 					}else{
 						nasca.nodeTree.select(d.id);
 					}
-					
-					addingLink.state = false;
-					addingLink.guide.remove();
 				})
 				.on('contextmenu', d3.contextMenu(menu, {
-					onOpen: function() {
-//						console.log('opened!');
-					},
-					onClose: function() {
-//						console.log('closed!');
-					}
+					onOpen: function() {},
+					onClose: function() {}
 				}))
 				.on("mousemove", function(d){
 					if(addingLink.state){
@@ -247,16 +246,25 @@ $(function(){
 //				  });
 				  
 				link.attr("d", function(d) {
+					var r,l,dx,dy,sx,sy,tx,ty;
+					r = 40 / 2;
+					dx = d.target.x - d.source.x;
+					dy = d.target.y - d.source.y;
+					l = Math.sqrt(dx * dx + dy * dy);
+					sx = d.source.x + dx * r / l;
+					sy = d.source.y + dy * r / l;
+					tx = d.target.x - dx * r / l;
+					ty = d.target.y - dy * r / l;
+					
 					//2段階目の点線描画のため「ソースノードが非表示」かつ「ターゲットノードが表示」の場合のみ線の向きを反転します。
 					if(!d.source.visible && d.target.visible){
-						return "M" + d.target.x + "," + d.target.y + " " + d.source.x + "," + d.source.y;
+//						return "M" + d.target.x + "," + d.target.y + " " + d.source.x + "," + d.source.y;
+						return "M" + tx + "," + ty + " " + sx + "," + sy;
 					}else{
-						return "M" + d.source.x + "," + d.source.y + " " + d.target.x + "," + d.target.y;
+//						return "M" + d.source.x + "," + d.source.y + " " + d.target.x + "," + d.target.y;
+						return "M" + sx + "," + sy + " " + tx + "," + ty;
 					}
 			    });
-			    
-			    node
-			    .attr({cx: function(d) { return d.x; }, cy: function(d) { return d.y; }});
 
 			    img
 				   .attr({x: function(d) { return d.x - 16; }, y: function(d) { return d.y - 16; }});
@@ -320,6 +328,13 @@ $(function(){
 					//D3データに既に存在する場合はプロパティを更新します（linkごと入れ替えると不具合が発生するため必要なプロパティを明示します）
 					if(json["links"][i].source === links[j].source.id && json["links"][i].target === links[j].target.id){
 						isExists = true
+						links[j].isCreate = json["links"][i].isCreate;
+						links[j].isRead = json["links"][i].isRead;
+						links[j].isUpdate = json["links"][i].isUpdate;
+						links[j].isDelete = json["links"][i].isDelete;
+						links[j].remark = json["links"][i].remark;
+						links[j].io = json["links"][i].io;
+						links[j].colorIndex = json["links"][i].colorIndex;
 						links[j].visible = json["links"][i].visible;
 						break;
 					}
@@ -337,6 +352,10 @@ $(function(){
 					links.push({
 						source: source[0],
 						target: target[0],
+						isCreate: json["links"][i].isCreate,
+						isRead: json["links"][i].isRead,
+						isUpdate: json["links"][i].isUpdate,
+						isDelete: json["links"][i].isDelete,
 						remark: json["links"][i].remark,
 						io: json["links"][i].io,
 						colorIndex: json["links"][i].colorIndex,
@@ -455,32 +474,24 @@ $(function(){
 			return result;
 		};
 		
-		var addLink = function(source, target){
-			var param = {
-				"source": source,
-				"target": target 
-			};
+		var generateHtmlLinkRegister = function(link){
+			var checkedCreate, checkedRead, checkedUpdate, checkedDelete;
 			
-			console.log(JSON.stringify(param));
+			checkedCreate = (link && link.isCreate) ? ('checked="checked"') :('');
+			checkedRead = (link && link.isRead) ? ('checked="checked"') :('');
+			checkedUpdate = (link && link.isUpdate) ? ('checked="checked"') :('');
+			checkedDelete = (link && link.isDelete) ? ('checked="checked"') :('');
+
+			var html = 
+				'<input type="checkbox" name="CRUDC" value="C" ' + checkedCreate + '>Create<br>' +
+				'<input type="checkbox" name="CRUDR" value="R" ' + checkedRead + '>Read<br>' +
+				'<input type="checkbox" name="CRUDU" value="U" ' + checkedUpdate + '>Update<br>' +
+				'<input type="checkbox" name="CRUDD" value="D" ' + checkedDelete + '>Delete<br>' +
+				'<textarea name="remark" rows="4" cols="40">input remark</textarea><br>';
 			
-			$.ajax({
-				type: "POST",
-				url: "LinkRegister",
-				dataType: "json",
-				data : {parameter : JSON.stringify(param)},
-				success: function(json, textStatus){
-				}
-			});
+			return html;
 		};
 		
-		var debug = function(){
-			nodes[0]["type"] = "EXCEL";
-			nodes[0]["name"] = "debug";
-			d3.selectAll('.nodeName').data(nodes, function(d,i){return d.id;}).text(function(d){return d["name"]});
-			d3.selectAll("path").style("stroke", "url(#fadeout)");
-		};
-		
-		// Define your menu
 		var menu = [
 			{
 				title: 'Expand',
@@ -497,38 +508,57 @@ $(function(){
 					addingLink.source = d;
 					addingLink.guide = svg.select("g").append("path").style("stroke","black");
 				}
-			},
-			{
-				title: function() {
-					if (menu[3].disabled) {
-						return 'Re-enable menu item #4';
-					} else {
-						return 'Disable menu item #4';
-					}
-				},
-				action: function(elm, d, i) {
-					menu[3].disabled = !menu[3].disabled;
-				}
-			},
-			{
-				title: 'Item #4',
-				disabled: false,
-				action: function(elm, d, i) {
-					console.log('You have clicked the 4th item!');
-					console.log('The data for this circle is: ' + d);
-				}
-			},
-			{
-				divider: true
-			},
-			{
-				title: 'Header'
 			}
-		]
+		];
+		
+		var menu2 = [
+			{
+				title: 'Edit',
+				action: function(elm, d, i) {
+					nasca.utility.showModal(
+							generateHtmlLinkRegister(d),
+							function(){
+								nasca.utility.ajaxPost(
+									"LinkRegister/update",
+									{
+										"source": d.source,
+										"target": d.target,
+										"dependencyTypeC": $("[name=CRUDC]").prop("checked"),
+										"dependencyTypeR": $("[name=CRUDR]").prop("checked"),
+										"dependencyTypeU": $("[name=CRUDU]").prop("checked"),
+										"dependencyTypeD": $("[name=CRUDD]").prop("checked"),
+										"remark": $("[name=remark]").val()
+									},
+									nasca.nodeTree.refresh
+								);
+							},
+							null
+						);
+				}
+			},
+			{
+				title: 'Remove',
+				action: function(elm, d, i) {
+					nasca.utility.showModal(
+							'Are you sure to remove?',
+							function(){
+								nasca.utility.ajaxPost(
+									"LinkRegister/delete",
+									{
+										"source": d.source,
+										"target": d.target
+									},
+									nasca.nodeTree.refresh
+								);
+							},
+							null
+						);
+				}
+			}
+		];
 		
 		return{
-			draw : draw,
-			debug : debug
+			draw : draw
 		};
 	})();
 });

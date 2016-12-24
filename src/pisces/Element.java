@@ -51,11 +51,11 @@ public class Element {
 	}
 	
 	public List<Dependency> getDependency(){
-		return dependencyDAO.SelectByElementID(this.id);
+		return dependencyDAO.selectByElementID(this.id);
 	}
 	
 	public List<Dependency> getDependencyDependOnMe(){
-		return dependencyDAO.SelectByDependencyElementID(this.id);
+		return dependencyDAO.selectByDependencyElementID(this.id);
 	}
 	
 	public List<Element> getChild(){

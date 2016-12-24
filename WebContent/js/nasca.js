@@ -34,5 +34,5 @@ $(function(){
 	//画面リサイズイベント登録
 	$(window).resize(function(){
 		$("#drawingPaper").attr("width", nasca.frame.wMain());
-	});
+	});	
 });

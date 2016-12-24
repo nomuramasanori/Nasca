@@ -72,4 +72,22 @@
 		#{remark}
     )
   </insert>
+  <update id="update">
+    update t_depndncy
+    set
+		dpdtpc = #{dpdtpc},
+		dpdtpr = #{dpdtpr},
+		dpdtpu = #{dpdtpu},
+		dpdtpd = #{dpdtpd},
+		remark = #{remark}
+    where
+		elmtid = #{elmtid} and
+		dpdeid = #{dpdeid}
+  </update>
+  <delete id="delete">
+    delete from t_depndncy
+    where
+		elmtid = #{elmtid} and
+		dpdeid = #{dpdeid}
+  </delete>
 </mapper>

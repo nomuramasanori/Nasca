@@ -141,7 +141,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	request.setAttribute("parameter", "group2.data1/group2.process1");
+    	request.setAttribute("parameter", "TABLE10");
     	this.doPost(request, response);
     }
 
@@ -171,7 +171,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 		//1段階目の取得■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 		for(int i=0 ; i < nodeStrings.length ; i++){
 			//空文字の場合はスキップ
-			if(nodeStrings[i] == "") continue;
+			if(nodeStrings[i].equals("")) continue;
 			
 			Element element = Element.getElement(nodeStrings[i]);
 
@@ -292,6 +292,10 @@ public class DataFlowInfomationServlet extends HttpServlet {
 	        generator.writeStartObject();
 	        generator.writeStringField("source", linkSet.getKey().getSource().getId());
 	    	generator.writeStringField("target", linkSet.getKey().getTarget().getId());
+	    	generator.writeBooleanField("isCreate", depndency.isDependencyTypeCreate());
+	    	generator.writeBooleanField("isRead", depndency.isDependencyTypeRead());
+	    	generator.writeBooleanField("isUpdate", depndency.isDependencyTypeUpdate());
+	    	generator.writeBooleanField("isDelete", depndency.isDependencyTypeDelete());
 	    	generator.writeStringField("remark", depndency.getRemark());
 	    	generator.writeStringField("io", linkSet.getValue().getDirection().toString());
 	    	generator.writeStringField("colorIndex", String.valueOf(Integer.parseInt(depndency.getDependencyType(), 2)));

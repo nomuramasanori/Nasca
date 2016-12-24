@@ -23,7 +23,6 @@ insert into test.m_element values ('TABLE7','7th table','TABLE','^-^');
 insert into test.m_element values ('TABLE8','8th table','TABLE','^-^');
 insert into test.m_element values ('TABLE9','9th table','TABLE','^-^');
 insert into test.m_element values ('test','test','test','test');
-
 insert into test.m_element values ('group1','group1','WINDOWS_APP','comment of group1');
 insert into test.m_element values ('group2','group2','WINDOWS_APP','comment of group2');
 insert into test.m_element values ('group1.data1','group1.data1','TABLE','comment of group1.data1');
@@ -38,6 +37,7 @@ insert into test.m_elmttype values ('SQL_FILE','file-sql.svg');
 insert into test.m_elmttype values ('TABLE','database.svg');
 insert into test.m_elmttype values ('WINDOWS_APP','program_black.svg');
 
+delete from test.t_depndncy;
 insert into test.t_depndncy values ('muto','TABLE2','1','0','0','0','gggg');
 insert into test.t_depndncy values ('NS.TABLE12','TABLE10','1','0','1','1','rmk16');
 insert into test.t_depndncy values ('PROCEDURE1','TABLE1','1','1','1','1','rmk1');
@@ -60,6 +60,5 @@ insert into test.t_depndncy values ('PROCEDURE4','TABLE4','1','0','0','1','rmk12
 insert into test.t_depndncy values ('PROCEDURE5','TABLE5','1','0','1','0','rmk13');
 insert into test.t_depndncy values ('PROCEDURE6','TABLE6','0','1','0','0','rmk14');
 insert into test.t_depndncy values ('PROCEDURE7','TABLE7','1','1','0','1','rmk15');
-
 insert into test.t_depndncy values ('group1.process1','group2.data1','0','1','0','0','grouping test1');
 insert into test.t_depndncy values ('group2.process1','group1.data1','0','1','0','0','grouping test2');
