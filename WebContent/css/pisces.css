@@ -63,3 +63,12 @@ top:0;
 left:0;
 z-index: 1;
 }
+
+/*jstreeのrootノード*/
+#jstree_demo_div{
+	position:relative;
+	left: -24px;
+}
+#root_anchor>i.jstree-checkbox{
+	display:none;
+}

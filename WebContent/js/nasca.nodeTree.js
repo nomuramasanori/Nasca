@@ -7,12 +7,10 @@ nasca.nodeTree = nasca.nodeTree || {};
 $(function(){
 	nasca.nodeTree = (function(){
 		var jstree;
-		var currentJson;
+		var currentJson = {};
 		
 		//初期化処理
 		(function(){
-			var i, j;
-
 			//ツリーデータ取得
 			$.ajax({
 				type: "GET",
@@ -21,12 +19,47 @@ $(function(){
 				success: function(data, textStatus){
 					//ツリー生成
 					$("#jstree_demo_div").jstree({
-						"core" : {"data" : data},
-					    "plugins" : [ "checkbox", "sort","types" ],
+						"core" : {
+							"data" : data,
+							"dblclick_toggle" : false
+						},
+					    "plugins" : [ "checkbox", "sort", "types", "contextmenu"],
 					    checkbox : {
 					    	three_state : false,
 					    	cascade : ""
-					    }
+					    },
+						"contextmenu":{         
+						    "items": function($node) {
+						        var tree = $("#tree").jstree(true);
+						        return {
+						            "Create": {
+						                "separator_before": false,
+						                "separator_after": false,
+						                "label": "Create",
+						                "action": function (obj) { 
+						                    console.log($node);
+						                    nasca.utility.showModal("",null,null);
+						                }
+						            },
+						            "Rename": {
+						                "separator_before": false,
+						                "separator_after": false,
+						                "label": "Rename",
+						                "action": function (obj) { 
+						                    tree.jstree('edit', $node);
+						                }
+						            },                         
+						            "Remove": {
+						                "separator_before": false,
+						                "separator_after": false,
+						                "label": "Remove",
+						                "action": function (obj) { 
+						                    tree.jstree('delete_node', $node);
+						                }
+						            }
+						        };
+						    }
+						}
 					});
 					
 					$.jstree.defaults.checkbox.three_state = false;
@@ -43,12 +76,19 @@ $(function(){
 			
 			//イベント追加
 			$('#jstree_demo_div').on('open_node.jstree', function (e, data) {
-				//無駄があるのでそのうち改善する
-				setBackground(currentJson.nodes);
+				//無駄があるのでそのうち改善する				
+				if(typeof currentJson.nodes !== "undefined") setBackground(currentJson.nodes);
+			});
+			
+			//イベント追加
+			$('#jstree_demo_div').on('loaded.jstree', function() {
+				jstree.open_node("#root");
 			});
 		})();
 		
 		var refresh = function(){
+			var i, j;
+			
 			//選択されたオブジェクトを"/"区切りで連結しデータ取得のパラメータを作成します。
 			var nodesString = "";
 			for(i = 0, j = jstree.get_selected().length; i < j; i++) {
@@ -102,12 +142,17 @@ $(function(){
 		
 		var escapePeriod = function(str){
 			return str.split(".").join("\\.");
-		}
+		};
+		
+		var debug = function(){
+			jstree.open_node("#root");
+		};
 		
 		return{
 			select : select,
 			selectChild : selectChild,
-			refresh : refresh
+			refresh : refresh,
+			debug : debug
 		}
 	})();
 });

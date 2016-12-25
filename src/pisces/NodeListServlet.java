@@ -45,6 +45,15 @@ public class NodeListServlet extends HttpServlet {
 			
 		//オブジェクトの書き込み
 		generator.writeStartArray();
+		
+		//rootノード
+		generator.writeStartObject();
+		generator.writeStringField("id", "root");
+		generator.writeStringField("parent", "#");
+		generator.writeStringField("text", "All nodes");
+		generator.writeStringField("type", "");
+		generator.writeEndObject();
+		
 		while(itr.hasNext()){
 			Element element = itr.next();
 			String parent = "";
@@ -52,7 +61,7 @@ public class NodeListServlet extends HttpServlet {
 			
 			//親ノードの設定を行います
 			if(idStrings.length == 1){
-				parent = "#";
+				parent = "root";
 			} else{
 				//区切り文字"."で完全IDを区切り末尾IDを除いたIDを親ノードとします。
 				for(int i = 0; i < idStrings.length - 1; i++){

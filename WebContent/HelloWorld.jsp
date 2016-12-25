@@ -24,6 +24,7 @@
 <body>
 	<div id="nodeList">
 		<object type="image/svg+xml" data="./img/nasca.svg" width="150px"></object>
+<!-- 		<input type="button" value="debug" onclick="nasca.nodeTree.debug();"> -->
 		<div id="jstree_demo_div"></div>
 	</div>
 </body>

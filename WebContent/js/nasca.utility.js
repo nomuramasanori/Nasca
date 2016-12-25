@@ -53,16 +53,25 @@ $(function(){
         }
         
 		var ajaxPost = function(url, param, callback){
+			//完了を知らせるためにDeferredオブジェクトを生成しそれを返す
+	        var deferred = new $.Deferred();
+
 			$.ajax({
 				type: "POST",
-				async: false,
+//				async: false,
 				url: url,
 				dataType: "json",
 				data : {parameter : JSON.stringify(param)},
 				success: function(json, textStatus){}
-			})
+			}).always(function(){
+	            //ajax処理を終了したことをDeferredオブジェクトに通知
+	            deferred.resolve();
+	        });
 			
-			if(typeof(callback) == "function") callback();
+			 //Deferredオブジェクトを監視し、完了の通知がきたらdone内を実行
+	        deferred.done(function(){
+	        	if(typeof(callback) == "function") callback();
+	        });
 		}
 
 		return{

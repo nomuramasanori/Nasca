@@ -173,6 +173,9 @@ public class DataFlowInfomationServlet extends HttpServlet {
 			//空文字の場合はスキップ
 			if(nodeStrings[i].equals("")) continue;
 			
+			//rootノードの場合はスキップ
+			if(nodeStrings[i].equals("root")) continue;
+			
 			Element element = Element.getElement(nodeStrings[i]);
 
 			this.putNodeAndLink(nodes, links, element, 1);
