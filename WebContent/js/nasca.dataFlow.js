@@ -134,16 +134,16 @@ $(function(){
 			var img = svg.selectAll("image").data(nodes, function(d,i){return d.id;});
 			img
 				.attr("xlink:href", function(d){if(d.visible) return "./img/" + d["svg-file"]; else return null;}) //ノード用画像の設定
-				.attr("width", function(d){if(d.visible) return "32px"; else return "0px";})
-				.attr("height", function(d){if(d.visible) return "32px"; else return "0px";})
-				.attr("x", function(d){if(d.visible) return "-16px"; else return "0px";})
-				.attr("y", function(d){if(d.visible) return "-16px"; else return "0px";})
+				.attr("width", function(d){if(d.visible) return d.size; else return "0px";})
+				.attr("height", function(d){if(d.visible) return d.size; else return "0px";})
+//				.attr("x", function(d){if(d.visible) return "-16px"; else return "0px";})
+//				.attr("y", function(d){if(d.visible) return "-16px"; else return "0px";})
 				.enter().append("image")
 				.attr("xlink:href", function(d){if(d.visible) return "./img/" + d["svg-file"]; else return null;}) //ノード用画像の設定
-				.attr("width", function(d){if(d.visible) return "32px"; else return "0px";})
-				.attr("height", function(d){if(d.visible) return "32px"; else return "0px";})
-				.attr("x", function(d){if(d.visible) return "-16px"; else return "0px";})
-				.attr("y", function(d){if(d.visible) return "-16px"; else return "0px";})
+				.attr("width", function(d){if(d.visible) return d.size; else return "0px";})
+				.attr("height", function(d){if(d.visible) return d.size; else return "0px";})
+//				.attr("x", function(d){if(d.visible) return "-16px"; else return "0px";})
+//				.attr("y", function(d){if(d.visible) return "-16px"; else return "0px";})
 				.on("mouseenter", function(d){
 					var i,j;
 					var flg = false;
@@ -246,15 +246,18 @@ $(function(){
 //				  });
 				  
 				link.attr("d", function(d) {
-					var r,l,dx,dy,sx,sy,tx,ty;
-					r = 40 / 2;
+					var sr,tr,l,dx,dy,sx,sy,tx,ty,margin;
+					margin = 8;
+//					r = 40 / 2;
+					sr = (d.source.size + margin) / 2;
+					tr = (d.target.size + margin) / 2;
 					dx = d.target.x - d.source.x;
 					dy = d.target.y - d.source.y;
 					l = Math.sqrt(dx * dx + dy * dy);
-					sx = d.source.x + dx * r / l;
-					sy = d.source.y + dy * r / l;
-					tx = d.target.x - dx * r / l;
-					ty = d.target.y - dy * r / l;
+					sx = d.source.x + dx * sr / l;
+					sy = d.source.y + dy * sr / l;
+					tx = d.target.x - dx * tr / l;
+					ty = d.target.y - dy * tr / l;
 					
 					//2段階目の点線描画のため「ソースノードが非表示」かつ「ターゲットノードが表示」の場合のみ線の向きを反転します。
 					if(!d.source.visible && d.target.visible){
@@ -266,8 +269,9 @@ $(function(){
 					}
 			    });
 
-			    img
-				   .attr({x: function(d) { return d.x - 16; }, y: function(d) { return d.y - 16; }});
+//			    img.attr({x: function(d) { return d.x - 16; }, y: function(d) { return d.y - 16; }});
+			    img.attr({x: function(d) { return d.x - d.size / 2; }, y: function(d) { return d.y - d.size / 2; }});
+			    	
 
 			    text
 			    .attr('x', function(d) { return d.x; })
