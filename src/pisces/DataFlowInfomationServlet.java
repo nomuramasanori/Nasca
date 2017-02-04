@@ -141,7 +141,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	request.setAttribute("parameter", "TABLE10");
+    	request.setAttribute("parameter", "PROCEDURE888/PROCEDURE888.qw");
     	this.doPost(request, response);
     }
 
@@ -168,6 +168,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 			nodeStrings = request.getParameter("parameter").split("/");
 		}
 		
+		
 		//1段階目の取得■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 		for(int i=0 ; i < nodeStrings.length ; i++){
 			//空文字の場合はスキップ
@@ -184,10 +185,30 @@ public class DataFlowInfomationServlet extends HttpServlet {
 					this.putNodeAndLink(nodes, links, child, 1);
 				}
 				
-				groups.add(element);
+				//昇格のためのgroupエレメントを配列に格納します。
+				//同一Groupの親－子－孫が候補の場合、格納するのは親Groupエレメントのみです。
+				boolean isAdd = true;
+				Element unnecesarryGroup = null;
+				for(Element group : groups){
+					if(group.contain(element)){
+						isAdd = false;
+						break;
+					}
+					
+					if(element.contain(group)){
+						unnecesarryGroup = group;
+						break;
+					}
+				}
+				if(isAdd){
+					groups.add(element);
+				}
+				if(unnecesarryGroup != null){
+					groups.remove(unnecesarryGroup);
+				}
 			}
 		}
-		
+
 		//2段階目の取得■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 		
 		//2段階目を取得する際に、ループを回すコレクションに対し要素追加を行うとConcurrentModificationExceptionが発生するためコピーします

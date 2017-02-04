@@ -343,10 +343,12 @@ $(function(){
 				if(!isExists){
 					//ID文字列だと不具合が発生するのでノードオブジェクトへの参照を取得します。
 					target = nodes.filter(function(item, index){
-						if (item.id == json["links"][i]["target"]) return true;
+						if (item.id === json["links"][i]["target"]) return true;
 					});
 					source = nodes.filter(function(item, index){
-						if (item.id == json["links"][i]["source"]) return true;
+						console.log("1:" + item.id);
+						console.log("2:" + json["links"][i]["source"]);
+						if (item.id === json["links"][i]["source"]) return true;
 					});
 					
 					links.push({
