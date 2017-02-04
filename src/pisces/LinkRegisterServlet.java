@@ -60,6 +60,8 @@ public class LinkRegisterServlet extends HttpServlet {
 				dependnecyDAO.update(
 					root.get("source").get("id").asText(), 
 					root.get("target").get("id").asText(),
+					root.get("source").get("id").asText(), 
+					root.get("target").get("id").asText(),
 					root.get("dependencyTypeC").asBoolean(),
 					root.get("dependencyTypeR").asBoolean(),
 					root.get("dependencyTypeU").asBoolean(),

@@ -10,6 +10,13 @@
     <result property="remark" column="remark" />
     <result property="svgFile" column="svgfle" />
   </resultMap>
+  <resultMap id="dpendencyelement" type="pisces.Element">
+    <id property="id" column="dpdelmtid" />
+    <result property="name" column="dpdelmtnm" />
+    <result property="type" column="dpdelmttp" />
+    <result property="remark" column="dpdremark" />
+    <result property="svgFile" column="dpdsvgfle" />
+  </resultMap>
   <select id="selectAll" resultMap="element">
     select
     	obj.elmtid,
@@ -50,4 +57,32 @@
     where
     	obj.elmtid like concat(#{objectID}, '.%')
   </select>
+  <insert id="insert">
+    insert into m_element (
+		elmtid,
+		elmtnm,
+		elmttp,
+		remark
+    ) values (
+		#{elmtid},
+		#{elmtnm},
+		#{elmttp},
+		#{remark}
+    )
+  </insert>
+  <update id="update">
+    update m_element
+    set
+    	elmtid = #{elmtid},
+		elmtnm = #{elmtnm},
+		elmttp = #{elmttp},
+		remark = #{remark}
+    where
+		elmtid = #{originalelmtid}
+  </update>
+  <delete id="delete">
+    delete from m_element
+    where
+		elmtid = #{elmtid}
+  </delete>
 </mapper>

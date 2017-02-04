@@ -16,6 +16,7 @@
 	</environments>
 	<mappers>
 		<mapper resource="/resources/element_mapper.xml" />
+		<mapper resource="/resources/elementType_mapper.xml" />
 		<mapper resource="/resources/dependency_mapper.xml" />
 	</mappers>
 </configuration>

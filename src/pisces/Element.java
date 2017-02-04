@@ -7,13 +7,26 @@ public class Element {
 	private static ElementDAO elementDAO = new ElementDAO();
 	private static DependencyDAO dependencyDAO = new DependencyDAO();
 	
+	private static Element root = new Element("root", "ROOT", "TABLE", "This is root", "database.svg");
+	
 	private String id;
 	private String name;
 	private String type;
 	private String remark;
 	private String svgFile;
 	
-	public Element(){}
+	private Element(){}
+	private Element(String id, String name, String type, String remark, String svgFile){
+		this.id = id;
+		this.name = name;
+		this.type = type;
+		this.remark = remark;
+		this.svgFile = svgFile;
+	}
+	
+	public static Element getRoot(){
+		return root;
+	}
 	
 	public static Element getElement(String id){
 		return elementDAO.selectByID(id);
@@ -56,6 +69,27 @@ public class Element {
 	
 	public List<Dependency> getDependencyDependOnMe(){
 		return dependencyDAO.selectByDependencyElementID(this.id);
+	}
+	
+	public Element getParent(){
+		Element result = null;
+		String parentid = "";
+		String[] idStrings = this.id.split("\\.");
+		
+		//親ノードの設定を行います
+		if(idStrings.length == 1){
+			result = Element.getRoot();
+		}
+		else{
+			//区切り文字"."で完全IDを区切り末尾IDを除いたIDを親ノードとします。
+			for(int i = 0; i < idStrings.length - 1; i++){
+				parentid = parentid + "." + idStrings[i];
+			}
+			parentid = parentid.substring(1, parentid.length());
+			result = elementDAO.selectByID(parentid);
+		}
+		
+		return result;
 	}
 	
 	public List<Element> getChild(){

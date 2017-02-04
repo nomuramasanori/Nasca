@@ -325,10 +325,10 @@ public class DataFlowInfomationServlet extends HttpServlet {
 		//結果変数はHashSetなので重複を考慮しなくても本来は問題ないですが、重複した場合後勝ちとなるため、先勝ちとなるよう存在チェックを行います。
 		List<Dependency> dependencies = element.getDependency();
 		for(Dependency dependency : dependencies){
-			if(!nodes.containsKey(dependency.getElement())){
-				nodes.put(dependency.getElement(), new AddtionalNodeInfomation(distance));
+			if(!nodes.containsKey(dependency.getDependencyElement())){
+				nodes.put(dependency.getDependencyElement(), new AddtionalNodeInfomation(distance));
 			}
-			LinkKey linkKey = new LinkKey(element, dependency.getElement());
+			LinkKey linkKey = new LinkKey(element, dependency.getDependencyElement());
 			if(!links.containsKey(linkKey)){
 				links.put(linkKey, new AddtionalLinkInfomation(dependency, distance, this.getDrection(dependency)));
 			}

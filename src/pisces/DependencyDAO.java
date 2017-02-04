@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
-public class DependencyDAO extends BaseDAO {
+public class DependencyDAO extends SessionManager {
 	
 	//コンストラクタ
 	public DependencyDAO(){}
@@ -47,30 +47,38 @@ public class DependencyDAO extends BaseDAO {
         }
 	}
 	
-	public void update(String elementID, String dependencyElementID, Boolean isDependencyTypeCreate, boolean isDependencyTypeRead, boolean isDependencyTypeUpdate, boolean isDependencyTypeDelete, String remark){
+	public void update(String originalEelementID, String originalDependencyElementID, String elementID, String dependencyElementID, Boolean isDependencyTypeCreate, boolean isDependencyTypeRead, boolean isDependencyTypeUpdate, boolean isDependencyTypeDelete, String remark){
 		try (SqlSession session = this.getSessionFactory().openSession()) {
-			Map<String, Object> param = new HashMap<>();
-            param.put("elmtid", elementID);
-            param.put("dpdeid", dependencyElementID);
-            param.put("dpdtpc", isDependencyTypeCreate);
-            param.put("dpdtpr", isDependencyTypeRead);
-            param.put("dpdtpu", isDependencyTypeUpdate);
-            param.put("dpdtpd", isDependencyTypeDelete);
-            param.put("remark", remark);
-            
-            session.insert("pisces.nasca.dependency.update", param);
-            session.commit();
+			this.update(session, originalEelementID, originalDependencyElementID, elementID, dependencyElementID, isDependencyTypeCreate, isDependencyTypeRead, isDependencyTypeUpdate, isDependencyTypeDelete, remark);
+			session.commit();
         }
+	}
+	public void update(SqlSession session, String originalElementID, String originalDependencyElementID, String elementID, String dependencyElementID, Boolean isDependencyTypeCreate, boolean isDependencyTypeRead, boolean isDependencyTypeUpdate, boolean isDependencyTypeDelete, String remark){
+		Map<String, Object> param = new HashMap<>();
+        param.put("originalelmtid", originalElementID);
+        param.put("originaldpdeid", originalDependencyElementID);
+        param.put("elmtid", elementID);
+        param.put("dpdeid", dependencyElementID);
+        param.put("dpdtpc", isDependencyTypeCreate);
+        param.put("dpdtpr", isDependencyTypeRead);
+        param.put("dpdtpu", isDependencyTypeUpdate);
+        param.put("dpdtpd", isDependencyTypeDelete);
+        param.put("remark", remark);
+
+        session.update("pisces.nasca.dependency.update", param);
 	}
 	
 	public void delete(String elementID, String dependencyElementID){
 		try (SqlSession session = this.getSessionFactory().openSession()) {
-			Map<String, Object> param = new HashMap<>();
-            param.put("elmtid", elementID);
-            param.put("dpdeid", dependencyElementID);
-            
-            session.insert("pisces.nasca.dependency.delete", param);
+			this.delete(session, elementID, dependencyElementID);
             session.commit();
         }
+	}
+	public void delete(SqlSession session, String elementID, String dependencyElementID){
+		Map<String, Object> param = new HashMap<>();
+        param.put("elmtid", elementID);
+        param.put("dpdeid", dependencyElementID);
+
+        session.delete("pisces.nasca.dependency.delete", param);
 	}
 }

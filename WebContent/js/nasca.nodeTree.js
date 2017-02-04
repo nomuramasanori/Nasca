@@ -17,55 +17,7 @@ $(function(){
 				url: "NodeList",
 				dataType: "json",
 				success: function(data, textStatus){
-					//ツリー生成
-					$("#jstree_demo_div").jstree({
-						"core" : {
-							"data" : data,
-							"dblclick_toggle" : false
-						},
-					    "plugins" : [ "checkbox", "sort", "types", "contextmenu"],
-					    checkbox : {
-					    	three_state : false,
-					    	cascade : ""
-					    },
-						"contextmenu":{         
-						    "items": function($node) {
-						        var tree = $("#tree").jstree(true);
-						        return {
-						            "Create": {
-						                "separator_before": false,
-						                "separator_after": false,
-						                "label": "Create",
-						                "action": function (obj) { 
-						                    console.log($node);
-						                    nasca.utility.showModal("",null,null);
-						                }
-						            },
-						            "Rename": {
-						                "separator_before": false,
-						                "separator_after": false,
-						                "label": "Rename",
-						                "action": function (obj) { 
-						                    tree.jstree('edit', $node);
-						                }
-						            },                         
-						            "Remove": {
-						                "separator_before": false,
-						                "separator_after": false,
-						                "label": "Remove",
-						                "action": function (obj) { 
-						                    tree.jstree('delete_node', $node);
-						                }
-						            }
-						        };
-						    }
-						}
-					});
-					
-					$.jstree.defaults.checkbox.three_state = false;
-					$.jstree.defaults.checkbox.cascade = "";
-					
-					jstree = $.jstree.reference('#jstree_demo_div');
+					create(data);
 				}
 			});
 			
@@ -85,6 +37,118 @@ $(function(){
 				jstree.open_node("#root");
 			});
 		})();
+		
+		var create = function(data){
+			//ツリー生成
+			$("#jstree_demo_div").jstree({
+				"core" : {
+					"data" : data,
+					"dblclick_toggle" : false
+				},
+			    "plugins" : [ "checkbox", "sort", "types", "contextmenu"],
+			    checkbox : {
+			    	three_state : false,
+			    	cascade : ""
+			    },
+				"contextmenu":{         
+				    "items": function($node) {
+				        var tree = $("#tree").jstree(true);
+				        return {
+				        		"Create": {
+				        		"separator_before": false,
+				        		"separator_after": false,
+				        		"label": "Create",
+				        		"action": function (obj) {
+				        			nasca.utility.showModal(
+			                    		generateHtmlNodeRegister("Create", $node),
+			                    		function(){
+											nasca.utility.ajaxPost(
+												"NodeRegister/insert",
+												{
+													"parentid": $("#parentid").val(),
+													"id": $("#id").val(),
+													"name": $("#name").val(),
+													"type": $("#type  option:selected").val(),
+													"remark": $("[name=remark]").val()
+												},
+												refreshJstree
+											);
+										},
+			                    		null
+			                    	);
+				                }
+				            },
+				            "Edit": {
+				            	"_disabled" : function(){if($node.id == "root") return true; else return false;},
+				                "separator_before": false,
+				                "separator_after": false,
+				                "label": "Edit",
+				                "action": function (obj) { 
+				                	nasca.utility.showModal(
+				                    		generateHtmlNodeRegister("Edit", $node),
+				                    		function(){
+												nasca.utility.ajaxPost(
+													"NodeRegister/update",
+													{
+														"parentid": $node.parent,
+														"originalid": $node.id,
+														"id": $("#id").val(),
+														"name": $("#name").val(),
+														"type": $("#type  option:selected").val(),
+														"remark": $("[name=remark]").val()
+													},
+													refreshJstree
+												);
+											},
+				                    		null
+				                    	);
+				                }
+				            },                         
+				            "Remove": {
+				            	"_disabled" : function(){if($node.id == "root") return true; else return false;},
+				                "separator_before": false,
+				                "separator_after": false,
+				                "label": "Remove",
+				                "action": function (obj) { 
+				                	nasca.utility.showModal(
+				                    		"Are you sure?",
+				                    		function(){
+												nasca.utility.ajaxPost(
+													"NodeRegister/delete",
+													{
+														"parentid": $node.parent,
+														"id": $node.id.replace($node.parent, "")
+													},
+													refreshJstree
+												);
+											},
+				                    		null
+				                    	);
+				                }
+				            }
+				        };
+				    }
+				}
+			});
+			
+			$.jstree.defaults.checkbox.three_state = false;
+			$.jstree.defaults.checkbox.cascade = "";
+			
+			jstree = $.jstree.reference('#jstree_demo_div');
+		};
+		
+		var refreshJstree = function(){
+			//ツリーデータ取得
+			$.ajax({
+				type: "GET",
+				url: "NodeList",
+				dataType: "json",
+				success: function(data, textStatus){
+					jstree.settings.core.data = data;
+					jstree.refresh();
+				}
+			});
+		}
 		
 		var refresh = function(){
 			var i, j;
@@ -144,14 +208,59 @@ $(function(){
 			return str.split(".").join("\\.");
 		};
 		
-		var debug = function(){
-			jstree.open_node("#root");
+		var generateHtmlNodeRegister = function(mode, node){
+			var parentid, parentname, id, name, selectedValue, remark;
+			
+			if(mode === "Create"){
+				parentid = node.id;
+				parentname = node.text;
+				id = "";
+				name = "";
+				selectedValue = null;
+				remark = "input remark";
+			}else if(mode === "Edit"){
+				parentid = node.parent;
+				parentname = node.original.parentText;
+				id = node.id.replace(node.parent + ".", "");
+				name = node.text;
+				selectedValue = node.original.type;
+				remark = node.original.remark;
+			}
+			
+			var html = 
+				'<input type="text" id="parentid" size="20" value="' + parentid + '" maxlength="20" disabled>' +
+				'<input type="text" id="parentname" size="40" value="' + parentname + '" maxlength="20" disabled><br>' +
+				'<input type="text" id="id" size="20" value="' + id + '" maxlength="20">' +
+				'<input type="text" id="name" size="40" value="' + name + '" maxlength="20"><br>' +
+				'<div id="type"></div>' +
+				'<textarea name="remark" rows="4" cols="40">' + remark + '</textarea><br>' +
+				//アイコン付きドロップダウンリストの発動
+				'<script>nasca.nodeTree.startMsDropDown("' + selectedValue + '");</script>';
+			
+			console.log(node);
+			
+			return html;
 		};
+		
+		var startMsDropDown = function(selectedValue){
+			$.ajax({
+				type: "GET",
+				url: "NodeType",
+				dataType: "json",
+				success: function(data, textStatus){
+					var dd = $("#type").msDropdown({byJson:{data:data}}).data("dd");
+					dd.setIndexByValue(selectedValue);
+				}
+			});
+		};
+		
+		var debug = function(){};
 		
 		return{
 			select : select,
 			selectChild : selectChild,
 			refresh : refresh,
+			startMsDropDown : startMsDropDown,
 			debug : debug
 		}
 	})();

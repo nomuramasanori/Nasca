@@ -126,7 +126,7 @@ $(function(){
 					$("#" + d.source.id + '-' + d.target.id).css("stroke-width", "3.0px");
 				})
 				.on("mouseleave", function(d){
-					$("#" + d.source.id + '-' + d.target.id).css("stroke-width", "1.5px");
+					$("#" + d.source.id + '-' + d.target.id).css("stroke-width", "2.0px");
 				});
 			link.exit().remove();
 			
@@ -185,21 +185,21 @@ $(function(){
 					
 					if(addingLink.state){
 						nasca.utility.showModal(
-								generateHtmlLinkRegister(null),
-								function(){
-									nasca.utility.ajaxPost(
-											"LinkRegister/insert",
-											{
-												"source": addingLink.source,
-												"target": d,
-												"dependencyTypeC": $("[name=CRUDC]").prop("checked"),
-												"dependencyTypeR": $("[name=CRUDR]").prop("checked"),
-												"dependencyTypeU": $("[name=CRUDU]").prop("checked"),
-												"dependencyTypeD": $("[name=CRUDD]").prop("checked"),
-												"remark": $("[name=remark]").val()
-											},
-											nasca.nodeTree.refresh
-									);
+							generateHtmlLinkRegister(null),
+							function(){
+								nasca.utility.ajaxPost(
+									"LinkRegister/insert",
+									{
+										"source": addingLink.source,
+										"target": d,
+										"dependencyTypeC": $("[name=CRUDC]").prop("checked"),
+										"dependencyTypeR": $("[name=CRUDR]").prop("checked"),
+										"dependencyTypeU": $("[name=CRUDU]").prop("checked"),
+										"dependencyTypeD": $("[name=CRUDD]").prop("checked"),
+										"remark": $("[name=remark]").val()
+									},
+									nasca.nodeTree.refresh
+								);
 							},
 							null
 						);
@@ -408,7 +408,7 @@ $(function(){
 		var setLinkStyleAndAttribute = function(selection){
 			selection
 		    	.style("fill", "none")
-		    	.style("stroke-width", "1.5px")
+		    	.style("stroke-width", "2.0px")
 		    	.style("stroke", function(d){
 		    		if(d.visible){
 		    			return "rgb(" + colors[d.colorIndex][0] + "," + colors[d.colorIndex][1] + "," + colors[d.colorIndex][2] + ")";

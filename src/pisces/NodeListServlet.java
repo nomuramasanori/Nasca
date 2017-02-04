@@ -48,33 +48,39 @@ public class NodeListServlet extends HttpServlet {
 		
 		//rootノード
 		generator.writeStartObject();
-		generator.writeStringField("id", "root");
+//		generator.writeStringField("id", "root");
+//		generator.writeStringField("parent", "#");
+//		generator.writeStringField("text", "All nodes");
+//		generator.writeStringField("type", "");
+		generator.writeStringField("id", Element.getRoot().getId());
 		generator.writeStringField("parent", "#");
-		generator.writeStringField("text", "All nodes");
-		generator.writeStringField("type", "");
+		generator.writeStringField("text", Element.getRoot().getName());
+		generator.writeStringField("type", Element.getRoot().getType());
 		generator.writeEndObject();
 		
 		while(itr.hasNext()){
 			Element element = itr.next();
-			String parent = "";
-			String[] idStrings = element.getId().split("\\.");
-			
-			//親ノードの設定を行います
-			if(idStrings.length == 1){
-				parent = "root";
-			} else{
-				//区切り文字"."で完全IDを区切り末尾IDを除いたIDを親ノードとします。
-				for(int i = 0; i < idStrings.length - 1; i++){
-					parent = parent + "." + idStrings[i];
-				}
-				parent = parent.substring(1, parent.length());
-			}
+//			String parent = "";
+//			String[] idStrings = element.getId().split("\\.");
+//			
+//			//親ノードの設定を行います
+//			if(idStrings.length == 1){
+//				parent = "root";
+//			} else{
+//				//区切り文字"."で完全IDを区切り末尾IDを除いたIDを親ノードとします。
+//				for(int i = 0; i < idStrings.length - 1; i++){
+//					parent = parent + "." + idStrings[i];
+//				}
+//				parent = parent.substring(1, parent.length());
+//			}
 			
 			generator.writeStartObject();
+			generator.writeStringField("parent", element.getParent().getId());
+			generator.writeStringField("parentText", element.getParent().getName());
 			generator.writeStringField("id",element.getId());
-			generator.writeStringField("parent", parent);
 			generator.writeStringField("text", element.getName());
 			generator.writeStringField("type", element.getType());
+			generator.writeStringField("remark", element.getRemark());
 			generator.writeEndObject();
 			
 		}

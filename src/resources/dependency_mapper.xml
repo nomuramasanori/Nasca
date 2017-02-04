@@ -9,15 +9,21 @@
     <result property="dependencyTypeUpdate" column="dpdtpu" />
     <result property="dependencyTypeDelete" column="dpdtpd" />
     <result property="remark" column="dpdrmk" />
-    <association property="element" resultMap="pisces.nasca.element.element" /> 
+    <association property="element" resultMap="pisces.nasca.element.element" />
+    <association property="dependencyElement" resultMap="pisces.nasca.element.dpendencyelement" /> 
   </resultMap>
   <select id="selectByElementID" resultMap="dependency">
 	select
-		elm.elmtid,
-		elm.elmtnm,
-		elm.elmttp,
-		elm.remark,
-		etp.svgfle,
+		elm1.elmtid,
+		elm1.elmtnm,
+		elm1.elmttp,
+		elm1.remark,
+		etp1.svgfle,
+		elm2.elmtid dpdelmtid,
+		elm2.elmtnm dpdelmtnm,
+		elm2.elmttp dpdelmttp,
+		elm2.remark dpdremark,
+		etp2.svgfle dpdsvgfle,
 		dpd.dpdtpc,
 		dpd.dpdtpr,
 		dpd.dpdtpu,
@@ -25,20 +31,29 @@
 		dpd.remark dpdrmk
 	from
 		t_depndncy dpd
-		inner join m_element elm on
-			dpd.dpdeid = elm.elmtid
-		left outer join m_elmttype etp on
-	    	elm.elmttp = etp.elmttp
+		inner join m_element elm1 on
+			dpd.elmtid = elm1.elmtid
+		inner join m_element elm2 on
+			dpd.dpdeid = elm2.elmtid
+		left outer join m_elmttype etp1 on
+	    	elm1.elmttp = etp1.elmttp
+		left outer join m_elmttype etp2 on
+	    	elm2.elmttp = etp2.elmttp
 	where
 		dpd.elmtid = #{elementID}
   </select>
   <select id="selectByDependencyElementID" resultMap="dependency">
 	select
-		elm.elmtid,
-		elm.elmtnm,
-		elm.elmttp,
-		elm.remark,
-		etp.svgfle,
+		elm1.elmtid,
+		elm1.elmtnm,
+		elm1.elmttp,
+		elm1.remark,
+		etp1.svgfle,
+		elm2.elmtid dpdelmtid,
+		elm2.elmtnm dpdelmtnm,
+		elm2.elmttp dpdelmttp,
+		elm2.remark dpdremark,
+		etp2.svgfle dpdsvgfle,
 		dpd.dpdtpc,
 		dpd.dpdtpr,
 		dpd.dpdtpu,
@@ -46,10 +61,14 @@
 		dpd.remark dpdrmk
 	from
 		t_depndncy dpd
-		inner join m_element elm on
-			dpd.elmtid = elm.elmtid
-		left outer join m_elmttype etp on
-	    	elm.elmttp = etp.elmttp
+		inner join m_element elm1 on
+			dpd.elmtid = elm1.elmtid
+		inner join m_element elm2 on
+			dpd.dpdeid = elm2.elmtid
+		left outer join m_elmttype etp1 on
+	    	elm1.elmttp = etp1.elmttp
+		left outer join m_elmttype etp2 on
+	    	elm2.elmttp = etp2.elmttp
 	where
 		dpd.dpdeid = #{elementID}
   </select>
@@ -75,14 +94,16 @@
   <update id="update">
     update t_depndncy
     set
+    	elmtid = #{elmtid},
+    	dpdeid = #{dpdeid},
 		dpdtpc = #{dpdtpc},
 		dpdtpr = #{dpdtpr},
 		dpdtpu = #{dpdtpu},
 		dpdtpd = #{dpdtpd},
 		remark = #{remark}
     where
-		elmtid = #{elmtid} and
-		dpdeid = #{dpdeid}
+		elmtid = #{originalelmtid} and
+		dpdeid = #{originaldpdeid}
   </update>
   <delete id="delete">
     delete from t_depndncy

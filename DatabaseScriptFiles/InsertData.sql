@@ -1,3 +1,4 @@
+delete from test.m_element;
 insert into test.m_element values ('muto','MUTO3','TABLE','YEAH');
 insert into test.m_element values ('NS','NameSpace','SYSTEM','TESTdayo');
 insert into test.m_element values ('NS.NOM','Nomura','SYSTEM','TESTdayo');
@@ -30,6 +31,7 @@ insert into test.m_element values ('group1.process1','group1.process1','PROCEDUR
 insert into test.m_element values ('group2.data1','group2.data1','TABLE','comment of group2.data1');
 insert into test.m_element values ('group2.process1','group2.process1','PROCEDURE','comment of group2.process1');
 
+delete from test.m_elmttype;
 insert into test.m_elmttype values ('CSV_FILE','file-csv.svg');
 insert into test.m_elmttype values ('EXCEL','excel.svg');
 insert into test.m_elmttype values ('PROCEDURE','program_red.svg');
