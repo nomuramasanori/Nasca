@@ -123,10 +123,10 @@ $(function(){
 					onClose: function() {}
 				}))
 				.on("mouseover", function(d){
-					$("#" + d.source.id + '-' + d.target.id).css("stroke-width", "3.0px");
+					$("#" + nasca.utility.escapePeriod(d.source.id) + '-' + nasca.utility.escapePeriod(d.target.id)).css("stroke-width", "3.0px");
 				})
 				.on("mouseleave", function(d){
-					$("#" + d.source.id + '-' + d.target.id).css("stroke-width", "2.0px");
+					$("#" + nasca.utility.escapePeriod(d.source.id) + '-' + nasca.utility.escapePeriod(d.target.id)).css("stroke-width", "2.0px");
 				});
 			link.exit().remove();
 			
@@ -340,6 +340,7 @@ $(function(){
 						links[j].io = json["links"][i].io;
 						links[j].colorIndex = json["links"][i].colorIndex;
 						links[j].visible = json["links"][i].visible;
+						links[j].virtual = json["links"][i].virtual;
 						break;
 					}
 				}
@@ -350,8 +351,6 @@ $(function(){
 						if (item.id === json["links"][i]["target"]) return true;
 					});
 					source = nodes.filter(function(item, index){
-						console.log("1:" + item.id);
-						console.log("2:" + json["links"][i]["source"]);
 						if (item.id === json["links"][i]["source"]) return true;
 					});
 					
@@ -365,7 +364,8 @@ $(function(){
 						remark: json["links"][i].remark,
 						io: json["links"][i].io,
 						colorIndex: json["links"][i].colorIndex,
-						visible: json["links"][i].visible
+						visible: json["links"][i].visible,
+						virtual: json["links"][i].virtual
 					});
 				}
 			}
@@ -498,30 +498,35 @@ $(function(){
 			return html;
 		};
 		
-		var menu = [
-			{
-				title: 'Expand',
-				action: function(elm, d, i) {
-					nasca.nodeTree.selectChild(d.id);
+		var menu = function(data) {
+			return [
+				{
+					title: 'Expand',
+					action: function(elm, d, i) {
+						nasca.nodeTree.selectChild(d.id);
+					},
+					disabled : !data.group
+				},
+				{
+					title: 'Add link',
+					action: function(elm, d, i) {
+						d3.event.stopPropagation();
+						
+						addingLink.state = true;
+						addingLink.source = d;
+						addingLink.guide = svg.select("g").append("path").style("stroke","black");
+					},
+					disabled : data.group
 				}
-			},
-			{
-				title: 'Add link',
-				action: function(elm, d, i) {
-					d3.event.stopPropagation();
-					
-					addingLink.state = true;
-					addingLink.source = d;
-					addingLink.guide = svg.select("g").append("path").style("stroke","black");
-				}
-			}
-		];
+			];
+		}
 		
-		var menu2 = [
-			{
-				title: 'Edit',
-				action: function(elm, d, i) {
-					nasca.utility.showModal(
+		var menu2 = function(data) {
+			return [
+				{
+					title: 'Edit',
+					action: function(elm, d, i) {
+						nasca.utility.showModal(
 							generateHtmlLinkRegister(d),
 							function(){
 								nasca.utility.ajaxPost(
@@ -540,12 +545,13 @@ $(function(){
 							},
 							null
 						);
-				}
-			},
-			{
-				title: 'Remove',
-				action: function(elm, d, i) {
-					nasca.utility.showModal(
+					},
+					disabled : data.virtual || !data.visible
+				},
+				{
+					title: 'Remove',
+					action: function(elm, d, i) {
+						nasca.utility.showModal(
 							'Are you sure to remove?',
 							function(){
 								nasca.utility.ajaxPost(
@@ -559,9 +565,11 @@ $(function(){
 							},
 							null
 						);
+					},
+					disabled : data.virtual || !data.visible
 				}
-			}
-		];
+			];
+		}
 		
 		return{
 			draw : draw

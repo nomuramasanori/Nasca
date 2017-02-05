@@ -67,7 +67,14 @@ public class DataFlowInfomationServlet extends HttpServlet {
 		private Dependency dependency;
 		private int distance;
 		private Direction direction;
+		private boolean isVirtual;
 		
+		public boolean isVirtual() {
+			return isVirtual;
+		}
+		public void setVirtual(boolean isVirtual) {
+			this.isVirtual = isVirtual;
+		}
 		public Dependency getDependency() {
 			return dependency;
 		}
@@ -168,6 +175,9 @@ public class DataFlowInfomationServlet extends HttpServlet {
 			nodeStrings = request.getParameter("parameter").split("/");
 		}
 		
+		for(String nm : nodeStrings){
+			System.out.println(nm);
+		}
 		
 		//1段階目の取得■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 		for(int i=0 ; i < nodeStrings.length ; i++){
@@ -241,6 +251,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 		}
 		for(Map.Entry<LinkKey, AddtionalLinkInfomation> linkSet : links.entrySet()){
 			boolean isGroupLink = false;
+			boolean isVirtual = false;
 			LinkKey linkKey = null;
 			Element source = linkSet.getKey().getSource();
 			Element target = linkSet.getKey().getTarget();
@@ -253,9 +264,11 @@ public class DataFlowInfomationServlet extends HttpServlet {
 				} else if(group.contain(linkSet.getKey().getSource())){
 					//グループ内のノードはグループノードに昇格します（ソース側）
 					source = group;
+					isVirtual = true;
 				} else if(group.contain(linkSet.getKey().getTarget())){
 					//グループ内のノードはグループノードに昇格します（ターゲット側）
 					target = group;
+					isVirtual = true;
 				}
 			}
 			
@@ -266,6 +279,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 				if(links3.containsKey(linkKey)){
 					this.summarizeLink(linkSet.getValue(), links3.get(linkKey), false);
 				}else{
+					linkSet.getValue().setVirtual(isVirtual);
 					links3.put(linkKey, linkSet.getValue());
 				}
 			}
@@ -305,6 +319,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 	    	generator.writeStringField("svg-file", element.getKey().getSvgFile());
 	    	generator.writeBooleanField("visible", element.getValue().getDistance() == 2 ? false : true);
 	    	generator.writeNumberField("size", element.getKey().isLeaf() ? 32 : 64);
+	    	generator.writeBooleanField("group", !element.getKey().isLeaf());
 	    	generator.writeEndObject();
 	    }
 		generator.writeEndArray();
@@ -325,6 +340,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 	    	generator.writeStringField("io", linkSet.getValue().getDirection().toString());
 	    	generator.writeStringField("colorIndex", String.valueOf(Integer.parseInt(depndency.getDependencyType(), 2)));
 	    	generator.writeBooleanField("visible", linkSet.getValue().getDistance() == 2 ? false : true);
+	    	generator.writeBooleanField("virtual", linkSet.getValue().isVirtual());
 	    	generator.writeEndObject();
 	    }
 		generator.writeEndArray();
@@ -376,6 +392,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 		target.getDependency().setDependencyTypeUpdate(target.getDependency().isDependencyTypeUpdate() || source.getDependency().isDependencyTypeUpdate());
 		target.getDependency().setDependencyTypeDelete(target.getDependency().isDependencyTypeDelete() || source.getDependency().isDependencyTypeDelete());
 		target.getDependency().setRemark(target.getDependency().getRemark() + source.getDependency().getRemark());
+		target.isVirtual = true;
 		if(isReverseDirection){
 			target.addDirection(source.getDirection().reverse());
 		}else{

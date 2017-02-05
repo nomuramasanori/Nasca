@@ -56,6 +56,8 @@ public class NodeListServlet extends HttpServlet {
 		generator.writeStringField("parent", "#");
 		generator.writeStringField("text", Element.getRoot().getName());
 		generator.writeStringField("type", Element.getRoot().getType());
+		generator.writeStringField("remark", "");
+		generator.writeBooleanField("hasDependency", false);
 		generator.writeEndObject();
 		
 		while(itr.hasNext()){
@@ -81,6 +83,7 @@ public class NodeListServlet extends HttpServlet {
 			generator.writeStringField("text", element.getName());
 			generator.writeStringField("type", element.getType());
 			generator.writeStringField("remark", element.getRemark());
+			generator.writeBooleanField("hasDependency", (element.getDependency().size() == 0 && element.getDependencyDependOnMe().size() == 0 ? false : true));
 			generator.writeEndObject();
 			
 		}

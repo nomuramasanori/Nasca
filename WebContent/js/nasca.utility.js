@@ -73,10 +73,15 @@ $(function(){
 	        	if(typeof(callback) == "function") callback();
 	        });
 		}
+		
+		var escapePeriod = function(str){
+			return str.split(".").join("\\.");
+		};
 
 		return{
 			showModal : showModal,
-			ajaxPost : ajaxPost
+			ajaxPost : ajaxPost,
+			escapePeriod : escapePeriod
 		}
 	})();
 });

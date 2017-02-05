@@ -8,6 +8,7 @@ $(function(){
 	nasca.nodeTree = (function(){
 		var jstree;
 		var currentJson = {};
+		var dndCounter, dndNodeLength;
 		
 		//初期化処理
 		(function(){
@@ -36,21 +37,65 @@ $(function(){
 			$('#jstree_demo_div').on('loaded.jstree', function() {
 				jstree.open_node("#root");
 			});
+			
+			$(document).on('dnd_start.vakata', function (e, data) {
+			    dndCounter = 0;
+			    dndNodeLength = data.data.nodes.length;
+			});
+
+			//イベント追加
+			$('#jstree_demo_div').on('move_node.jstree', function(e, data) {
+				var parentLevel = data.parent.split(".").length;
+				var movingTarget = data.node.id.replace(data.old_parent + ".", "");
+				var parent = data.parent === "root" ? "" : data.parent + ".";
+				
+				nasca.utility.ajaxPost(
+					"NodeRegister/update",
+					{
+						"parentid": data.parent,
+						"originalid": data.node.id,
+						"id": movingTarget,
+						"name": data.node.original.text,
+						"type": data.node.original.type,
+						"remark": data.node.original.remark
+					},
+					//複数ノードのdndではノード毎にイベント発生するので最後のmove_nodeが完了した時点でリフレッシュします。
+					function(){
+						dndCounter++;
+						if(dndCounter >= dndNodeLength){
+							refreshJstree();
+						}
+					}
+				);
+			});
 		})();
 		
 		var create = function(data){
 			//ツリー生成
 			$("#jstree_demo_div").jstree({
-				"core" : {
+				core : {
 					"data" : data,
-					"dblclick_toggle" : false
+					"dblclick_toggle" : false,
+					"check_callback" : function(operation, node, node_parent, node_position, more) {
+					    if (operation === "move_node") {
+					        if (more.pos === "i" || more.core) {
+					        	if(node_parent.original.hasDependency){
+					        		return false;
+					        	}else{
+					        		return true;
+					        	}
+					        }
+					    }
+
+					    return false; //allow all other operations
+					}
 				},
-			    "plugins" : [ "checkbox", "sort", "types", "contextmenu"],
+			    plugins : [ "checkbox", "sort", "types", "contextmenu", "dnd"],
 			    checkbox : {
 			    	three_state : false,
 			    	cascade : ""
 			    },
-				"contextmenu":{         
+				contextmenu:{         
 				    "items": function($node) {
 				        var tree = $("#tree").jstree(true);
 				        return {
@@ -179,17 +224,17 @@ $(function(){
 			
 			//独自に設定した背景スタイルを解除します
 			for(i=0; i<jstree.settings.core.data.length; i++){
-				$("#" + escapePeriod(jstree.settings.core.data[i].id) + "_anchor").css("background","");
-				$("#" + escapePeriod(jstree.settings.core.data[i].id) + "_anchor").css("border-radius","");
-				$("#" + escapePeriod(jstree.settings.core.data[i].id) + "_anchor").css("box-shadow","");
+				$("#" + nasca.utility.escapePeriod(jstree.settings.core.data[i].id) + "_anchor").css("background","");
+				$("#" + nasca.utility.escapePeriod(jstree.settings.core.data[i].id) + "_anchor").css("border-radius","");
+				$("#" + nasca.utility.escapePeriod(jstree.settings.core.data[i].id) + "_anchor").css("box-shadow","");
 			}
 			
 			//表示かつ選択されていないノードに背景スタイルを設定します
 			for(i=0; i<nodes.length; i++){
 				if(nodes[i].visible && !jstree.is_selected(nodes[i].id)){
-					$("#" + escapePeriod(nodes[i].id) + "_anchor").css("background","#beebff");
-					$("#" + escapePeriod(nodes[i].id) + "_anchor").css("border-radius","2px");
-					$("#" + escapePeriod(nodes[i].id) + "_anchor").css("box-shadow","inset 0 0 1px #999999");
+					$("#" + nasca.utility.escapePeriod(nodes[i].id) + "_anchor").css("background","#beebff");
+					$("#" + nasca.utility.escapePeriod(nodes[i].id) + "_anchor").css("border-radius","2px");
+					$("#" + nasca.utility.escapePeriod(nodes[i].id) + "_anchor").css("box-shadow","inset 0 0 1px #999999");
 				}
 			}
 		};
@@ -204,9 +249,9 @@ $(function(){
 			jstree.deselect_node(nodeID);
 		};
 		
-		var escapePeriod = function(str){
-			return str.split(".").join("\\.");
-		};
+//		var escapePeriod = function(str){
+//			return str.split(".").join("\\.");
+//		};
 		
 		var generateHtmlNodeRegister = function(mode, node){
 			var parentid, parentname, id, name, selectedValue, remark;
@@ -259,6 +304,7 @@ $(function(){
 		return{
 			select : select,
 			selectChild : selectChild,
+			refreshJstree : refreshJstree,
 			refresh : refresh,
 			startMsDropDown : startMsDropDown,
 			debug : debug
