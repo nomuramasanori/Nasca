@@ -162,7 +162,7 @@ $(function(){
 													"NodeRegister/delete",
 													{
 														"parentid": $node.parent,
-														"id": $node.id.replace($node.parent, "")
+														"id": $node.id.replace($node.parent + ".", "")
 													},
 													refreshJstree
 												);

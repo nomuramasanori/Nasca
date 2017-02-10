@@ -148,7 +148,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	request.setAttribute("parameter", "PROCEDURE888/PROCEDURE888.qw");
+    	request.setAttribute("parameter", "nomura");
     	this.doPost(request, response);
     }
 
@@ -312,6 +312,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 		generator.writeStartArray();
 	    for(Map.Entry<Element, AddtionalNodeInfomation> element : nodes3.entrySet()) {
 	    	generator.writeStartObject();
+	    	generator.writeStringField("parent", element.getKey().getParent().getId());
 	    	generator.writeStringField("id", element.getKey().getId());
 	    	generator.writeStringField("name", element.getKey().getName());
 	    	generator.writeStringField("type", element.getKey().getType());

@@ -10,6 +10,7 @@ $(function(){
 		var svg;
 		var nodes = [];    //ノードを収める配列
 		var links = [];    //ノード間のリンク情報を収める配列
+		var groups = [];
 		var comments = [];
 		var colors = [
 		      		[255,255,0], [0,255,0], [0,0,255], [255,200,0],
@@ -274,8 +275,20 @@ $(function(){
 			    	
 
 			    text
-			    .attr('x', function(d) { return d.x; })
-			    .attr('y', function(d) { return d.y + 32; });
+				    .attr('x', function(d) { return d.x; })
+				    .attr('y', function(d) { return d.y + 32; });
+			    
+			    //convex hull
+			    svg.selectAll("path.hull").data(groups)
+				    .attr("d", groupPath)
+				    .enter().append("path")
+				    .attr("class", "hull")
+				    .style("fill", function(d){console.log(d); return "black";})
+				    .style("stroke", "black")
+				    .style("stroke-width", 40)
+				    .style("stroke-linejoin", "round")
+				    .style("opacity", .05)
+				    .attr("d", groupPath);
 			});	
 	
 			force.start();
@@ -384,6 +397,8 @@ $(function(){
 					links.splice(i, 1);
 				}
 			}
+			
+			groups = d3.nest().key(function(d) { return d.parent; }).entries(nodes);
 		};
 		
 		var drawComment = function(){
@@ -570,6 +585,13 @@ $(function(){
 				}
 			];
 		}
+		
+		var groupPath = function(d) {
+		    return "M" + 
+		      d3.geom.hull(d.values.map(function(i) {return [i.x, i.y]; }))
+		        .join("L")
+		    + "Z";
+		};
 		
 		return{
 			draw : draw
