@@ -317,7 +317,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 	    	generator.writeStringField("name", element.getKey().getName());
 	    	generator.writeStringField("type", element.getKey().getType());
 	    	generator.writeStringField("remark", element.getKey().getRemark());
-	    	generator.writeStringField("svg-file", element.getKey().getSvgFile());
+	    	generator.writeStringField("svg-file", element.getKey().getSvgFile()+".svg");
 	    	generator.writeBooleanField("visible", element.getValue().getDistance() == 2 ? false : true);
 	    	generator.writeNumberField("size", element.getKey().isLeaf() ? 32 : 64);
 	    	generator.writeBooleanField("group", !element.getKey().isLeaf());
