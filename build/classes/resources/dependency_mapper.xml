@@ -3,17 +3,20 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pisces.nasca.dependency">
-  <resultMap id="dependency" type="pisces.Dependency"> 
+  <resultMap id="dependency" type="pisces.Dependency">
+  	<!-- associationを使うと勝手にグルーピングされるためID項目が必要 -->
+  	<id property="id" column="id" />
     <result property="dependencyTypeCreate" column="dpdtpc" />
     <result property="dependencyTypeRead" column="dpdtpr" />
     <result property="dependencyTypeUpdate" column="dpdtpu" />
     <result property="dependencyTypeDelete" column="dpdtpd" />
-    <result property="remark" column="dpdrmk" />
-    <association property="element" resultMap="pisces.nasca.element.element" />
-    <association property="dependencyElement" resultMap="pisces.nasca.element.dpendencyelement" /> 
+    <result property="remark" column="dpdrmk"/>
+    <association property="element" resultMap="pisces.nasca.element.element"/>
+    <association property="dependencyElement" resultMap="pisces.nasca.element.dpendencyelement"/> 
   </resultMap>
   <select id="selectByElementID" resultMap="dependency">
 	select
+		concat(elm1.elmtid, '-', elm2.elmtid) id,
 		elm1.elmtid,
 		elm1.elmtnm,
 		elm1.elmttp,
@@ -24,11 +27,11 @@
 		elm2.elmttp dpdelmttp,
 		elm2.remark dpdremark,
 		etp2.svgfle dpdsvgfle,
+		dpd.remark dpdrmk,
 		dpd.dpdtpc,
 		dpd.dpdtpr,
 		dpd.dpdtpu,
-		dpd.dpdtpd,
-		dpd.remark dpdrmk
+		dpd.dpdtpd
 	from
 		t_depndncy dpd
 		inner join m_element elm1 on
@@ -44,6 +47,7 @@
   </select>
   <select id="selectByDependencyElementID" resultMap="dependency">
 	select
+		concat(elm1.elmtid, '-', elm2.elmtid) id,
 		elm1.elmtid,
 		elm1.elmtnm,
 		elm1.elmttp,
@@ -54,11 +58,11 @@
 		elm2.elmttp dpdelmttp,
 		elm2.remark dpdremark,
 		etp2.svgfle dpdsvgfle,
+		dpd.remark dpdrmk,
 		dpd.dpdtpc,
 		dpd.dpdtpr,
 		dpd.dpdtpu,
-		dpd.dpdtpd,
-		dpd.remark dpdrmk
+		dpd.dpdtpd
 	from
 		t_depndncy dpd
 		inner join m_element elm1 on

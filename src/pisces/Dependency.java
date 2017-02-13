@@ -1,6 +1,7 @@
 package pisces;
 
 public class Dependency {	
+	private String id;
 	private Element element;
 	private Element dependencyElement;
 	private boolean dependencyTypeCreate;
@@ -9,6 +10,12 @@ public class Dependency {
 	private boolean dependencyTypeDelete;
 	private String remark;
 
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
 	public Element getElement() {
 		return element;
 	}

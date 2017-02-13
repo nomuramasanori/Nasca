@@ -93,7 +93,9 @@ $(function(){
 					return "rgb(" + d[0] + "," + d[1] + "," + d[2] + ")";
 				});
 			
-			svg.append("svg:g");
+			svg.append("svg:g").attr("class", "hulls");
+			
+			svg.append("svg:g").attr("class", "paths");
 			
 			//★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★		
 			var w = d3
@@ -115,8 +117,25 @@ $(function(){
 			//d3にバインドされているデータを更新します。
 			updateData(json);
 			
+			//convex hull
+		    var hulls = svg.select("g.hulls").selectAll("path.hull").data(groups, function(d,i){return d.key});
+		    hulls
+			    .style("stroke-width", function(d){
+			    	return 40 + 20 * d.level;
+			    })
+			    .enter().insert("path","image")
+			    .attr("class", "hull")
+			    .style("fill", function(d){return "black";})
+			    .style("stroke", "black")
+			    .style("stroke-width", function(d){
+			    	return 40 + 20 * d.level;
+			    })
+			    .style("stroke-linejoin", "round")
+			    .style("opacity", .05);
+		    hulls.exit().remove();
+			
 			//リンク描画
-			var link = svg.select("g").selectAll("path").data(links, function(d,i){return d.source.id + '-' + d.target.id;});
+			var link = svg.select("g.paths").selectAll("path").data(links, function(d,i){return d.source.id + '-' + d.target.id;});
 			setLinkStyleAndAttribute(setLinkStyleAndAttribute(link).enter().append("svg:path").attr("id", function(d,i){return d.source.id + '-' + d.target.id;}));
 			link
 				.on('contextmenu', d3.contextMenu(menu2, {
@@ -234,7 +253,7 @@ $(function(){
 			    .attr("font-family", "sans-serif")
 			    .attr("font-size", "20px")
 			    .attr("fill", "darkgray");
-			text.exit().remove();	
+			text.exit().remove();
 			
 			force.on("tick", function(e) {
 				//★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
@@ -279,16 +298,17 @@ $(function(){
 				    .attr('y', function(d) { return d.y + 32; });
 			    
 			    //convex hull
-			    svg.selectAll("path.hull").data(groups)
-				    .attr("d", groupPath)
-				    .enter().append("path")
-				    .attr("class", "hull")
-				    .style("fill", function(d){console.log(d); return "black";})
-				    .style("stroke", "black")
-				    .style("stroke-width", 40)
-				    .style("stroke-linejoin", "round")
-				    .style("opacity", .05)
-				    .attr("d", groupPath);
+//			    svg.selectAll("path.hull").data(groups)
+//				    .attr("d", groupPath)
+//				    .enter().append("path")
+//				    .attr("class", "hull")
+//				    .style("fill", function(d){return "black";})
+//				    .style("stroke", "black")
+//				    .style("stroke-width", 40)
+//				    .style("stroke-linejoin", "round")
+//				    .style("opacity", .05)
+//				    .attr("d", groupPath);
+			    hulls.attr("d", groupPath);
 			});	
 	
 			force.start();
@@ -398,7 +418,31 @@ $(function(){
 				}
 			}
 			
-			groups = d3.nest().key(function(d) { return d.parent; }).entries(nodes);
+			//hull描画のため、親ノードでグルーピングします。
+			groups = d3.nest().key(function(d) { return d.parent; }).entries(nodes.filter(function(element, index, array) {
+			    return element.parent !== "root";
+			}));
+			//配下の階層のノードを自分のレベルにも含めます
+			groups.forEach(function(val1,index1,ar1){
+				//深い階層＜浅い階層となるようなlevelを設定します。
+				var depth1,depth2,depthMax;
+				depth1 = nasca.utility.countString(val1.key, nasca.utility.escapePeriod("."));
+				depthMax = depth1;
+				
+				groups.forEach(function(val2,index2,ar2){
+					//前方一致検索
+					var str = " " + val2.key;
+					if (val1.key !== val2.key && str.indexOf(" " + val1.key) !== -1) {
+						Array.prototype.push.apply(val1.values, val2.values);
+						depth2 = nasca.utility.countString(val2.key, nasca.utility.escapePeriod("."));
+						if(depthMax < depth2){
+							depthMax = depth2;
+						}
+					}
+				});
+				
+				val1.level = depthMax - depth1;
+			});
 		};
 		
 		var drawComment = function(){

@@ -77,11 +77,17 @@ $(function(){
 		var escapePeriod = function(str){
 			return str.split(".").join("\\.");
 		};
+		
+		// all の中に part が出現する回数を取得
+		var countString = function(all, part) {
+		    return (all.match(new RegExp(part, "g")) || []).length;
+		}
 
 		return{
 			showModal : showModal,
 			ajaxPost : ajaxPost,
-			escapePeriod : escapePeriod
+			escapePeriod : escapePeriod,
+			countString : countString
 		}
 	})();
 });
