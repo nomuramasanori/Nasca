@@ -83,7 +83,8 @@ public class NodeListServlet extends HttpServlet {
 			generator.writeStringField("text", element.getName());
 			generator.writeStringField("type", element.getType());
 			generator.writeStringField("remark", element.getRemark());
-			generator.writeBooleanField("hasDependency", (element.getDependency().size() == 0 && element.getDependencyDependOnMe().size() == 0 ? false : true));
+			generator.writeStringField("icon", "./img/"+element.getSvgFile()+".png");
+			generator.writeBooleanField("hasDependency", (element.getDependency().size() == 0 && element.getDependencyDependOnMe().size() == 0 ? false : true));			
 			generator.writeEndObject();
 			
 		}
