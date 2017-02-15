@@ -170,6 +170,15 @@ $(function(){
 				                    		null
 				                    	);
 				                }
+				            },
+				            "All select": {
+				            	"_disabled" : function(){if($node.id == "root") return true; else return false;},
+				                "separator_before": false,
+				                "separator_after": false,
+				                "label": "All select",
+				                "action": function (obj) {
+				                	console.log($node);
+				                }
 				            }
 				        };
 				    }
