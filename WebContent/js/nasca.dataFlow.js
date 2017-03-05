@@ -29,7 +29,8 @@ $(function(){
 				.size([nasca.frame.wMain(), nasca.frame.hMain()])
 				.nodes(nodes)
 				.links(links)
-				.linkDistance(60)
+				.linkDistance(100)
+				.linkStrength(0.8)	//0..1
 				.charge(-8000)
 				.gravity(0.4)
 				.friction(0.7);
@@ -41,7 +42,7 @@ $(function(){
 		        .attr("preserveAspectRatio", "xMidYMid meet")
 				.attr("pointer-events", "all")
 				.append("g")
-				.call(d3.behavior.zoom().scaleExtent([0.3, 6]).on("zoom", function(){
+				.call(d3.behavior.zoom().scaleExtent([0.1, 5]).on("zoom", function(){
 					svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 				}))
 				.on("dblclick.zoom", null)
@@ -93,16 +94,18 @@ $(function(){
 					return "rgb(" + d[0] + "," + d[1] + "," + d[2] + ")";
 				});
 			
-			svg.append("svg:g").attr("class", "hulls");
 			
+			svg.append("svg:g").attr("class", "hulls");
+			svg.append("svg:g").attr("class", "images");
 			svg.append("svg:g").attr("class", "paths");
 			
-			//★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★		
+			//Windowへのイベント追加
 			var w = d3
 				.select(window)
 				.on("mousemove", function(){
 					if(!addingLink.state) return;
 					
+					//リンク追加のガイド表示
 					addingLink.guide.attr("d", "M" + addingLink.source.x + "," + addingLink.source.y + " " + d3.event.offsetX + "," + d3.event.offsetY);
 				})
 				.on("click", function(){
@@ -116,23 +119,6 @@ $(function(){
 		var draw = function(json){
 			//d3にバインドされているデータを更新します。
 			updateData(json);
-			
-			//convex hull
-		    var hulls = svg.select("g.hulls").selectAll("path.hull").data(groups, function(d,i){return d.key});
-		    hulls
-			    .style("stroke-width", function(d){
-			    	return 40 + 20 * d.level;
-			    })
-			    .enter().insert("path","image")
-			    .attr("class", "hull")
-			    .style("fill", function(d){return "black";})
-			    .style("stroke", "black")
-			    .style("stroke-width", function(d){
-			    	return 40 + 20 * d.level;
-			    })
-			    .style("stroke-linejoin", "round")
-			    .style("opacity", .05);
-		    hulls.exit().remove();
 			
 			//リンク描画
 			var link = svg.select("g.paths").selectAll("path").data(links, function(d,i){return d.source.id + '-' + d.target.id;});
@@ -151,51 +137,50 @@ $(function(){
 			link.exit().remove();
 			
 			//ノード描画
-			var img = svg.selectAll("image").data(nodes, function(d,i){return d.id;});
+//			var img = svg.selectAll("image").data(nodes, function(d,i){return d.id;});
+			var img = svg.select("g.images").selectAll("image").data(nodes, function(d,i){return d.id;});
 			img
 				.attr("xlink:href", function(d){if(d.visible) return "./img/" + d["svg-file"]; else return null;}) //ノード用画像の設定
 				.attr("width", function(d){if(d.visible) return d.size; else return "0px";})
 				.attr("height", function(d){if(d.visible) return d.size; else return "0px";})
-//				.attr("x", function(d){if(d.visible) return "-16px"; else return "0px";})
-//				.attr("y", function(d){if(d.visible) return "-16px"; else return "0px";})
 				.enter().append("image")
+				.attr("id", function(d){return "node-" + d.id.replace(/\./g, "_");})
 				.attr("xlink:href", function(d){if(d.visible) return "./img/" + d["svg-file"]; else return null;}) //ノード用画像の設定
 				.attr("width", function(d){if(d.visible) return d.size; else return "0px";})
 				.attr("height", function(d){if(d.visible) return d.size; else return "0px";})
-//				.attr("x", function(d){if(d.visible) return "-16px"; else return "0px";})
-//				.attr("y", function(d){if(d.visible) return "-16px"; else return "0px";})
-				.on("mouseenter", function(d){
-					var i,j;
-					var flg = false;
-					j = comments.length;
-					for(i=0; i<j; i++){
-						if(comments[i]["id"] === d.id){
-							comments.splice(i,1);
-							flg = true;
-							break;
-						}
-					}
-					if(!flg){
-						comments.push(d);
-					}
-					drawComment();
-				})
-				.on("mouseleave", function(d){
-					var i,j;
-					var flg = false;
-					j = comments.length;
-					for(i=0; i<j; i++){
-						if(comments[i]["id"] === d.id){
-							comments.splice(i,1);
-							flg = true;
-							break;
-						}
-					}
-					if(!flg){
-						comments.push(d);
-					}
-					drawComment();
-				})
+				.attr("data-depth", function(d){return d.depth;})
+//				.on("mouseenter", function(d){
+//					var i,j;
+//					var flg = false;
+//					j = comments.length;
+//					for(i=0; i<j; i++){
+//						if(comments[i]["id"] === d.id){
+//							comments.splice(i,1);
+//							flg = true;
+//							break;
+//						}
+//					}
+//					if(!flg){
+//						comments.push(d);
+//					}
+//					drawComment();
+//				})
+//				.on("mouseleave", function(d){
+//					var i,j;
+//					var flg = false;
+//					j = comments.length;
+//					for(i=0; i<j; i++){
+//						if(comments[i]["id"] === d.id){
+//							comments.splice(i,1);
+//							flg = true;
+//							break;
+//						}
+//					}
+//					if(!flg){
+//						comments.push(d);
+//					}
+//					drawComment();
+//				})
 				.on("mousedown", function(d){
 					d3.event.stopPropagation();
 				})
@@ -243,6 +228,48 @@ $(function(){
 				.call(force.drag);
 			img.exit().remove();
 			
+			img.order();
+						
+			//convex hull
+//		    var hulls = svg.select("g.hulls").selectAll("path.hull").data(groups, function(d,i){return d.key});
+			var hulls = svg.select("g.images").selectAll("path.hull").data(groups, function(d,i){return d.key});
+		    hulls
+			    .style("stroke-width", function(d){
+			    	return 20 + 15 * d.level;
+			    })		    
+			    .enter().append("path")
+			    .attr("data-key", function(d){return d.key;})
+			    .attr("data-depth", function(d){return d.depth;})
+			    .attr("class", "hull")
+			    .style("fill", function(d){
+			    	var brightness = 255 - d.depth * 10;
+			    	return "rgb(" + brightness + "," + brightness + "," + brightness + ")";
+			    })
+			    .style("stroke", function(d){
+			    	var brightness = 255 - d.depth * 10;
+			    	return "rgb(" + brightness + "," + brightness + "," + brightness + ")";
+			    })
+			    .style("stroke-width", function(d){
+			    	return 20 + 15 * d.level;
+			    })
+			    .style("stroke-linejoin", "round")
+			    .style("opacity", 0.5)
+			    .on('contextmenu', d3.contextMenu(menuHull, {
+					onOpen: function() {},
+					onClose: function() {}
+				}));
+		    hulls.exit().remove();
+		    
+		    var removedHulls = svg.select("g.images").selectAll("path.hull").remove();
+		    for (var i=0 ; i<removedHulls[0].length ; i++){
+		    	for (var j=0 ; j<img[0].length ; j++){
+		    		if($(removedHulls[0][i]).data("depth") <= $(img[0][j]).data("depth")){
+		    			$(removedHulls[0][i]).insertBefore(img[0][j]);
+		    			break;
+		    		}
+		    	}
+		    }
+			
 			//オブジェクト名称描画
 			var text = svg.selectAll("text.nodeName").data(nodes, function(d,i){return d.id;});
 			text
@@ -256,19 +283,75 @@ $(function(){
 			text.exit().remove();
 			
 			force.on("tick", function(e) {
-				//★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-//				// Push different nodes in different directions for clustering.
-//				  var k = 150 * e.alpha;
-//				  nodes.forEach(function(o, i) {
-//					  console.log(i&1);
-//				    o.x += i & 2 ? k : -k;
-//				    o.y += i & 1 ? k : -k;
-//				  });
-				  
+				//クラスター化				
+				nodes.forEach(cluster(e.alpha));
+				
+				//convex hull
+			    hulls.attr("d", groupPath);
+			    
+//			    //衝突判定
+//			    hulls[0].forEach(function(hull){
+//			    	var vertexesEx = [];
+//			    	//hullの頂点座標はDOMにしか存在しないのでjQueryを使わざるを得ない。pathタグのd属性を取得。
+//			    	var vertexes = $(hull).attr("d").split("L");
+//			    	var splittedText;
+//			    	
+//			    	//先頭の頂点から"M"を削除
+//			    	splittedText = vertexes[0];
+//			    	vertexes[0] = splittedText.substr(1);
+//			    	
+//			    	//末尾の頂点から"Z"を削除
+//			    	splittedText = vertexes[vertexes.length - 1];
+//			    	vertexes[vertexes.length - 1] = splittedText.substr(0, splittedText.length - 1);
+//			    	
+//			    	//文字列をX座標、Y座標に変換
+//			    	vertexes.forEach(function(vertex, index){
+//			    		var xy = vertex.split(",");
+//			    		vertexes[index] = {"x":Number(xy[0]), "y":Number(xy[1])};
+//			    		
+////			    		var nextIndex = vertexes.length <= index + 1 ? 0 : index + 1; 
+////			    		var xy1 = vertexes[index].split(",");
+////			    		var xy2 = vertexes[nextIndex].split(",");
+////
+////			    		var shiftedLine = shiftParallel(Number(xy1[0]), Number(xy1[1]), Number(xy2[0]), Number(xy2[1]), 100, 0);
+////			    		vertexesEx.push({"x":shiftedLine.x1, "y":shiftedLine.y1});
+////			    		vertexesEx.push({"x":shiftedLine.x2, "y":shiftedLine.y2});
+//			    	});
+//			    	
+//			    	//衝突判定
+//			    	nodes.forEach(function(node){
+//			    		var pointWork, pointNearest;
+//			    		var dx, dy;
+//			    		//グループに含まれないノードの場合
+//						var str = " " + node.parent;
+//						if(node.parent !== $(hull).data("key") && str.indexOf(" " + $(hull).data("key")) === -1) {
+//							//衝突判定を行った結果衝突していたら
+//							if(judgeInclusion(node, vertexes)){
+//								//hullの各辺までの距離を求めます
+//								vertexes.forEach(function(vertex, index){
+//									var adjacentIndex = index === vertexes.length - 1 ? 0 : index + 1;
+//									pointWork = calculationDistance(node.x, node.y, vertexes[index].x, vertexes[index].y, vertexes[adjacentIndex].x, vertexes[adjacentIndex].y);
+//									if(pointNearest === undefined || pointWork.d < pointNearest.d){
+//										pointNearest = pointWork;
+//									}
+//								});
+//								
+//								dx = node.x - pointNearest.x;
+//								dy = node.y - pointNearest.y;
+//								
+//								node.x -= dx * e.alpha;
+//								node.y -= dy * e.alpha;
+////								node.collision = true;
+//				    		}else{
+////				    			node.collision = false;
+//				    		}
+//						}
+//			    	});
+//			    });
+			    
 				link.attr("d", function(d) {
 					var sr,tr,l,dx,dy,sx,sy,tx,ty,margin;
 					margin = 8;
-//					r = 40 / 2;
 					sr = (d.source.size + margin) / 2;
 					tr = (d.target.size + margin) / 2;
 					dx = d.target.x - d.source.x;
@@ -281,34 +364,22 @@ $(function(){
 					
 					//2段階目の点線描画のため「ソースノードが非表示」かつ「ターゲットノードが表示」の場合のみ線の向きを反転します。
 					if(!d.source.visible && d.target.visible){
-//						return "M" + d.target.x + "," + d.target.y + " " + d.source.x + "," + d.source.y;
 						return "M" + tx + "," + ty + " " + sx + "," + sy;
 					}else{
-//						return "M" + d.source.x + "," + d.source.y + " " + d.target.x + "," + d.target.y;
 						return "M" + sx + "," + sy + " " + tx + "," + ty;
 					}
 			    });
+				
+				img
+					.attr('x', function(d) { return d.x - d.size / 2; })
+					.attr('y', function(d) { return d.y - d.size / 2; });
+//					.attr('width', function(d){
+//						return d.collision ? 5 : d.size;
+//					});
 
-//			    img.attr({x: function(d) { return d.x - 16; }, y: function(d) { return d.y - 16; }});
-			    img.attr({x: function(d) { return d.x - d.size / 2; }, y: function(d) { return d.y - d.size / 2; }});
-			    	
-
-			    text
+				text
 				    .attr('x', function(d) { return d.x; })
 				    .attr('y', function(d) { return d.y + 32; });
-			    
-			    //convex hull
-//			    svg.selectAll("path.hull").data(groups)
-//				    .attr("d", groupPath)
-//				    .enter().append("path")
-//				    .attr("class", "hull")
-//				    .style("fill", function(d){return "black";})
-//				    .style("stroke", "black")
-//				    .style("stroke-width", 40)
-//				    .style("stroke-linejoin", "round")
-//				    .style("opacity", .05)
-//				    .attr("d", groupPath);
-			    hulls.attr("d", groupPath);
 			});	
 	
 			force.start();
@@ -354,6 +425,12 @@ $(function(){
 					nodes.splice(i, 1);
 				}
 			}
+			
+			nodes.sort(function(a,b){
+		        if( a.depth < b.depth ) return -1;
+		        if( a.depth > b.depth ) return 1;
+		        return 0;
+			});
 			
 			//リンクを追加・削除
 			//変更のないデータを削除⇒追加するとD3への束縛に不具合が発生するので変更分のみ追加・削除を行う
@@ -420,7 +497,11 @@ $(function(){
 			
 			//hull描画のため、親ノードでグルーピングします。
 			groups = d3.nest().key(function(d) { return d.parent; }).entries(nodes.filter(function(element, index, array) {
-			    return element.parent !== "root";
+				if(element.parent === "root" || !element.visible){
+					return false;
+				} else{
+					return true;
+				}
 			}));
 			//配下の階層のノードを自分のレベルにも含めます
 			groups.forEach(function(val1,index1,ar1){
@@ -442,33 +523,34 @@ $(function(){
 				});
 				
 				val1.level = depthMax - depth1;
+				val1.depth = depth1 + 1;
 			});
 		};
 		
-		var drawComment = function(){
-			var comment = svg.selectAll(".comment").data(comments);
-			comment.enter().append("rect")
-				.attr("class","comment")
-				.attr("width",300)
-				.attr("height",200)
-				.attr("opacity",0.0)
-				.attr("x",function(d){return d.x + 50})
-				.attr("y",function(d){return d.y - 50});
-			comment.exit().remove();
-			
-			var commenttext = svg.selectAll(".commentText").data(comments);
-			commenttext.enter().append("text")
-				.attr("class", "commentText")
-				.attr("x", function(d) { return d.x + 70; })
-			    .attr("y", function(d) { return d.y ; })
-			    .text( function (d) { return d.remark; })
-			    .attr("font-family", "sans-serif")
-			    .attr("font-size", "20px")
-			    .attr("fill", "white");
-			commenttext.exit().remove();
-			
-			comment.transition().delay(300).duration(300).style("opacity", 0.5);
-		};
+//		var drawComment = function(){
+//			var comment = svg.selectAll(".comment").data(comments);
+//			comment.enter().append("rect")
+//				.attr("class","comment")
+//				.attr("width",300)
+//				.attr("height",200)
+//				.attr("opacity",0.0)
+//				.attr("x",function(d){return d.x + 50})
+//				.attr("y",function(d){return d.y - 50});
+//			comment.exit().remove();
+//			
+//			var commenttext = svg.selectAll(".commentText").data(comments);
+//			commenttext.enter().append("text")
+//				.attr("class", "commentText")
+//				.attr("x", function(d) { return d.x + 70; })
+//			    .attr("y", function(d) { return d.y ; })
+//			    .text( function (d) { return d.remark; })
+//			    .attr("font-family", "sans-serif")
+//			    .attr("font-size", "20px")
+//			    .attr("fill", "white");
+//			commenttext.exit().remove();
+//			
+//			comment.transition().delay(300).duration(300).style("opacity", 0.5);
+//		};
 		
 		var setLinkStyleAndAttribute = function(selection){
 			selection
@@ -630,12 +712,171 @@ $(function(){
 			];
 		}
 		
-		var groupPath = function(d) {
-		    return "M" + 
-		      d3.geom.hull(d.values.map(function(i) {return [i.x, i.y]; }))
-		        .join("L")
-		    + "Z";
+		var menuHull = function(data) {
+			return [
+				{
+					title: 'Collapse',
+					action: function(elm, d, i) {
+						nasca.nodeTree.select(d.key);
+					}
+				}
+			];
 		};
+		
+		//pathタグのd属性に設定する文字列を作成します
+		var groupPath = function(d) {
+			var prefix = "M";
+			var splitter = "L";
+			var safix = "Z";
+			var vertex = [];
+			var radius;
+			
+			//各ノードの4隅の座標を利用します
+			if(d.values === undefined){
+				if(d.visible === true){
+					radius = d.size / 2;
+					vertex.push([d.x - radius, d.y - radius]);
+					vertex.push([d.x + radius, d.y - radius]);
+					vertex.push([d.x - radius, d.y + radius]);
+					vertex.push([d.x + radius, d.y + radius]);
+				}
+			}else{
+				d.values.forEach(function(node){
+					if(node.visible === true){
+						radius = node.size / 2;
+						vertex.push([node.x - radius, node.y - radius]);
+						vertex.push([node.x + radius, node.y - radius]);
+						vertex.push([node.x - radius, node.y + radius]);
+						vertex.push([node.x + radius, node.y + radius]);
+					}
+				});
+			}
+			return prefix + d3.geom.hull(vertex).join(splitter) + safix;
+		};
+		
+		// Move d to be adjacent to the cluster node.
+		var cluster = function (alpha){
+			return function(d) {
+				if(d.parent === "root") return;
+					
+				var totalX = 0,
+				totalY = 0,
+				averageX = 0,
+				averageY = 0,
+				count = 0;
+				
+				//同一グループの座標の総和を求めます
+				nodes.forEach(function(node){
+					//前方一致検索
+					var str = " " + d.parent;
+					if (node.parent === d.parent || str.indexOf(" " + node.parent) !== -1) {
+						totalX += node.x;
+						totalY += node.y;
+						count += 1;
+					}
+				});
+				
+				//中心座標
+				averageX = totalX / count;
+				averageY = totalY / count;
+				
+			    var x = d.x - averageX,
+			        y = d.y - averageY;
+
+					 d.x -= x * alpha;
+					 d.y -= y * alpha;
+			};
+		}
+		
+		var judgeInclusion = function(p1, comparisonArr) {
+		  var deg = 0;
+		  var p1x = p1.x;
+		  var p1y = p1.y;
+
+		  for (var index = 0; index < comparisonArr.length; index++) {
+		    var p2x = comparisonArr[index].x;
+		    var p2y = comparisonArr[index].y;
+		    if (index < comparisonArr.length - 1) {
+		      var p3x = comparisonArr[index + 1].x;
+		      var p3y = comparisonArr[index + 1].y;
+		    } else {
+		      var p3x = comparisonArr[0].x;
+		      var p3y = comparisonArr[0].y;
+		    }
+
+		    var ax = p2x - p1x;
+		    var ay = p2y - p1y;
+		    var bx = p3x - p1x;
+		    var by = p3y - p1y;
+
+		    var cos = (ax * bx + ay * by) / (Math.sqrt(ax * ax + ay * ay) * Math.sqrt(bx * bx + by * by));
+		    deg += getDegree(Math.acos(cos));
+		  }
+
+		  if (Math.round(deg) == 360) {
+		    return true;
+		  } else {
+		    return false;
+		  }
+		};
+		
+		var calculationDistance = function(x0, y0, x1, y1, x2, y2) {
+			var ax, ay, bx, by, r, dx, dy, result = {};
+			
+			ax = x2 - x1;
+			ay = y2 - y1;
+			bx = x0 - x1;
+			by = y0 - y1;
+			
+			r = (ax*bx + ay*by) / (ax*ax + ay*ay);
+			
+			if( r<= 0 ){
+				result.x = x1;
+				result.y = y1;
+			}else if( r>=1 ){
+				result.x = x2;
+				result.y = y2;
+			}else{
+				result.x = x1 + r * ax;
+				result.y = y1 + r * ay;
+			}
+			
+			dx = x0 - result.x;
+			dy = y0 - result.y;
+			result.d = Math.sqrt(dx * dx + dy * dy);
+			
+//			//P(px,py)、Q(qx,qy)とするとQ方向にL伸ばした点R(rx,ry)の座標は
+//			result.x = (-100 * x0 + (result.d + 100) * result.x) / result.d;
+//			result.y = (-100 * y0 + (result.d + 100) * result.y) / result.d;
+			
+			return result;
+		};
+		
+		var shiftParallel = function(x1, y1, x2, y2, distance, direction){
+			var ax, ay, bx, by, cx, cy, dx , dy, norm;
+			
+			ax = x2 - x1;
+			ay = y2 - y1;
+			
+			if(direction === 0){
+				bx = ay;
+				by = -1 * ax;
+			}else{
+				bx = -1 * ay;
+				by = ax;
+			}
+			norm = Math.sqrt(ax * ax + ay * ay);
+			cx = bx / norm * distance;
+			cy = by / norm * distance;
+			dx = cx + ax;
+			dy = cy + ay;
+			
+			return {"x1":cx + x1, "y1":cy + y1, "x2":dx + x1, "y2":dy + y1};
+		};
+		
+		var getDegree = function(radian) {
+			  return radian / Math.PI * 180;
+			};
 		
 		return{
 			draw : draw

@@ -321,6 +321,7 @@ public class DataFlowInfomationServlet extends HttpServlet {
 	    	generator.writeBooleanField("visible", element.getValue().getDistance() == 2 ? false : true);
 	    	generator.writeNumberField("size", element.getKey().isLeaf() ? 32 : 64);
 	    	generator.writeBooleanField("group", !element.getKey().isLeaf());
+	    	generator.writeNumberField("depth", element.getKey().getParent().getId().equals(Element.getRoot().getId()) ? 0 : element.getKey().getParent().getId().split("\\.").length);
 	    	generator.writeEndObject();
 	    }
 		generator.writeEndArray();

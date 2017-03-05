@@ -13,13 +13,15 @@ $(function(){
 		var wNodeList;    
 		var wMain;
 		var hMain;
+		var hHeader;
 		
 		var initialize = function(){
 			wWindow = $(window).innerWidth();
 			hWindow = $(window).innerHeight();
 			wNodeList = $("#nodeList").width();    
+			hHeader = $("#header").height();
 			wMain = wWindow - wNodeList -1;
-			hMain = hWindow;
+			hMain = hWindow - hHeader;
 		};
 
 		return {

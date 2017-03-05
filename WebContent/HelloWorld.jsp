@@ -17,6 +17,7 @@
 <script type="text/javascript" src="js/nasca.nodeTree.js" charset="utf-8"></script>
 <script type="text/javascript" src="js/nasca.dataFlow.js" charset="utf-8"></script>
 <script type="text/javascript" src="js/nasca.utility.js" charset="utf-8"></script>
+<link href="https://fonts.googleapis.com/css?family=Dancing+Script" rel="stylesheet">
 <link rel="stylesheet" href="js/themes/default/style.min.css" />
 <link rel="stylesheet" href="css/d3-context-menu.css" />
 <link rel="stylesheet" href="css/msdropdown/dd.css" />
@@ -24,9 +25,15 @@
 <title>Insert title here</title>
 </head>
 <body>
+	<div id="header">
+		<div id="logoArea">
+			<object id="logo" type="image/svg+xml" data="./img/nasca.svg"></object>
+		</div>
+		<div id="title">
+			<h1>Nasca</h1>
+		</div>
+	</div>
 	<div id="nodeList">
-		<object type="image/svg+xml" data="./img/nasca.svg" width="150px"></object>
-<!-- 		<input type="button" value="debug" onclick="nasca.dataFlow.drawHull();"> -->
 		<div id="jstree_demo_div"></div>
 	</div>
 </body>
