@@ -32,12 +32,12 @@ insert into test.m_element values ('group2.data1','group2.data1','TABLE','commen
 insert into test.m_element values ('group2.process1','group2.process1','PROCEDURE','comment of group2.process1');
 
 delete from test.m_elmttype;
-insert into test.m_elmttype values ('CSV_FILE','file-csv.svg');
-insert into test.m_elmttype values ('EXCEL','excel.svg');
-insert into test.m_elmttype values ('PROCEDURE','program_red.svg');
-insert into test.m_elmttype values ('SQL_FILE','file-sql.svg');
-insert into test.m_elmttype values ('TABLE','database.svg');
-insert into test.m_elmttype values ('WINDOWS_APP','program_black.svg');
+insert into test.m_elmttype values ('CSV_FILE','file-csv');
+insert into test.m_elmttype values ('EXCEL','excel');
+insert into test.m_elmttype values ('PROCEDURE','program_red');
+insert into test.m_elmttype values ('SQL_FILE','file-sql');
+insert into test.m_elmttype values ('TABLE','database');
+insert into test.m_elmttype values ('WINDOWS_APP','program_black');
 
 delete from test.t_depndncy;
 insert into test.t_depndncy values ('muto','TABLE2','1','0','0','0','gggg');
