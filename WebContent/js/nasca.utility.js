@@ -81,13 +81,30 @@ $(function(){
 		// all の中に part が出現する回数を取得
 		var countString = function(all, part) {
 		    return (all.match(new RegExp(part, "g")) || []).length;
-		}
+		};
+		
+		var getCommonString = function(str1, str2){
+			var i;
+			var partOfWords = "";
+			var words = str1.split(".");
+			
+			for(i=0; i<words.length; i++){
+				//前方一致検索
+				if (("." + str2).indexOf(partOfWords + "." + words[i] + ".") === -1) {
+					break;
+				}
+				partOfWords += "." + words[i];
+			}
+			
+			return partOfWords.substr(1);
+		};
 
 		return{
 			showModal : showModal,
 			ajaxPost : ajaxPost,
 			escapePeriod : escapePeriod,
-			countString : countString
+			countString : countString,
+			getCommonString : getCommonString
 		}
 	})();
 });

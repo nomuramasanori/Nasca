@@ -20,7 +20,8 @@ $(function(){
 			hWindow = $(window).innerHeight();
 			wNodeList = $("#nodeList").width();    
 			hHeader = $("#header").height();
-			wMain = wWindow - wNodeList -1;
+//			wMain = wWindow - wNodeList -1;
+			wMain = wWindow - wNodeList;
 			hMain = hWindow - hHeader;
 		};
 

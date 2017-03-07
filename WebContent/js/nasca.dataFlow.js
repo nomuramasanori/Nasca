@@ -52,9 +52,11 @@ $(function(){
 			//領域全体をドラッグアンドドロップするためのプレースホルダ
 			svg.append("rect")
 				.attr("id", "background")
-				.attr("width",nasca.frame.wMain())
-				.attr("height",nasca.frame.hMain())
-				.attr("fill","white");
+//				.attr("width",nasca.frame.wMain())
+//				.attr("height",nasca.frame.hMain())
+				.attr("width",5000)
+				.attr("height",4000)
+				.attr("fill","transparent");
 
 			//矢印定義（終端）
 			svg.append("svg:defs").selectAll("marker")
@@ -390,6 +392,7 @@ $(function(){
 			var countJsonNodes, countJsonLinks, countDataNodes, countDataLinks;
 			var isExists;
 			var target,source;
+			var additionalGroups = [];
 	
 			//ノードを追加・削除
 			//変更のないデータを削除⇒追加するとD3への束縛に不具合が発生するので変更分のみ追加・削除を行う
@@ -503,6 +506,48 @@ $(function(){
 					return true;
 				}
 			}));
+			
+			//ノードが存在しない上位グループを追加します
+			groups.forEach(function(val1,index1,ar1){
+				var k;
+				var nameSpace = "";
+				var nameSpaceTemp = "";
+				var names = val1.key.split(".");
+				
+				if(names.length === 1){
+					return false;
+				}
+				
+				names.forEach(function(name, indexName, arName){
+					var isExists = false;
+					nameSpaceTemp = nameSpaceTemp + "." + name;
+					nameSpace = nameSpaceTemp.substr(1);
+					
+					groups.forEach(function(val2,index2,ar2){
+						if(val2.key === nameSpace){
+							isExists = true;
+							return false;
+						}
+					});
+					if(isExists){
+						return false;
+					}
+					
+					additionalGroups.forEach(function(val2,index2,ar2){
+						if(val2.key === nameSpace){
+							isExists = true;
+							return false;
+						}
+					});
+					if(isExists){
+						return false;
+					}
+					
+					additionalGroups.push({"key":nameSpace, "values":[]});
+				})
+			});
+			Array.prototype.push.apply(groups, additionalGroups);
+			
 			//配下の階層のノードを自分のレベルにも含めます
 			groups.forEach(function(val1,index1,ar1){
 				//深い階層＜浅い階層となるようなlevelを設定します。
@@ -754,37 +799,73 @@ $(function(){
 			return prefix + d3.geom.hull(vertex).join(splitter) + safix;
 		};
 		
+		//****************************************************************************************
 		// Move d to be adjacent to the cluster node.
+//		var cluster = function (alpha){
+//			return function(d) {
+//				if(d.parent === "root") return;
+//					
+//				var totalX = 0,
+//				totalY = 0,
+//				averageX = 0,
+//				averageY = 0,
+//				count = 0;
+//				
+//				//同一グループの座標の総和を求めます
+//				nodes.forEach(function(node){
+//					//前方一致検索
+//					var str = " " + d.parent;
+//					if (node.parent === d.parent || str.indexOf(" " + node.parent) !== -1) {
+//						totalX += node.x;
+//						totalY += node.y;
+//						count += 1;
+//					}
+//				});
+//				
+//				//中心座標
+//				averageX = totalX / count;
+//				averageY = totalY / count;
+//				
+//			    var x = d.x - averageX,
+//			        y = d.y - averageY;
+//
+//					 d.x -= x * alpha;
+//					 d.y -= y * alpha;
+//			};
+//		}
 		var cluster = function (alpha){
 			return function(d) {
-				if(d.parent === "root") return;
-					
-				var totalX = 0,
-				totalY = 0,
-				averageX = 0,
-				averageY = 0,
-				count = 0;
+				var vx = 0;
+				var vy = 0;
+				var count = 0;
+				var averageX = 0;
+				var averageY = 0;
+				var names = d.id.split(".");
 				
 				//同一グループの座標の総和を求めます
 				nodes.forEach(function(node){
-					//前方一致検索
-					var str = " " + d.parent;
-					if (node.parent === d.parent || str.indexOf(" " + node.parent) !== -1) {
-						totalX += node.x;
-						totalY += node.y;
-						count += 1;
+					var names2 = node.id.split(".");
+					var commonLength, distance;
+//					if (names[0] === names2[0] && d.id !== node.id){
+					if (names[0] === names2[0]){
+//						distance = Math.abs(names.length - names2.length) + 1;
+						commonLength = nasca.utility.getCommonString(d.id, node.id).split(".").length;; 
+						distance = (names.length - commonLength) + (names2.length - commonLength) - 1;
+						
+						vx = vx + (node.x - d.x) / distance;
+						vy = vy + (node.y - d.y) / distance;
+						count = count + 1;
 					}
 				});
 				
-				//中心座標
-				averageX = totalX / count;
-				averageY = totalY / count;
+				if(count === 0) return;
 				
-			    var x = d.x - averageX,
-			        y = d.y - averageY;
-
-					 d.x -= x * alpha;
-					 d.y -= y * alpha;
+				//平均ベクトル
+				averageX = vx / count;
+				averageY = vy / count;
+				
+				d.x += averageX * alpha;
+				d.y += averageY * alpha;
 			};
 		}
 		

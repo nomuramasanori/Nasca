@@ -41,7 +41,6 @@ h1{
 
 #nodeList{
 	width:200px;
-/* 	height:100%; */
 	height:calc(100% - 40px);
 	float:left;
 	background-color:#f0f8ff;
@@ -50,9 +49,9 @@ h1{
 }
 
 #drawingPaper{
-/* 	height:100%; */
 	height:calc(100% - 40px);
 	background-color:white;
+/* 	background-image: url('../img/IMG_0536.jpg'); */
 }
 
 
@@ -61,10 +60,6 @@ h1{
 	z-index: 0;
 	font-size: 16px;
 }
-/* .page-txt { */
-/* 	margin: 30px 0 0; */
-/* 	height: 2000px; */
-/* } */
 #modal-open {
 	color: #cc0000;
 }
