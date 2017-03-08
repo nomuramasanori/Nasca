@@ -172,12 +172,19 @@ $(function(){
 				                }
 				            },
 				            "All select": {
-				            	"_disabled" : function(){if($node.id == "root") return true; else return false;},
 				                "separator_before": false,
 				                "separator_after": false,
 				                "label": "All select",
 				                "action": function (obj) {
-				                	console.log($node);
+				                	selectAllLeaf($node);
+				                }
+				            },
+				            "All deselect": {
+				                "separator_before": false,
+				                "separator_after": false,
+				                "label": "All deselect",
+				                "action": function (obj) {
+				                	deselectAll($node);
 				                }
 				            }
 				        };
@@ -308,6 +315,28 @@ $(function(){
 			});
 		};
 		
+		var deselectAll = function(node){
+			node.children_d.forEach(function(child){
+				jstree.deselect_node(child, true);
+			});
+			
+			jstree.deselect_node(node.id);
+		};
+		
+		var selectAllLeaf = function(node){
+			node.children_d.forEach(function(child, index){
+				console.log(jstree.get_node(child).children);
+				if(jstree.get_node(child).children.length === 0){
+					if(node.children_d.length - 1 === index){
+						jstree.select_node(child);
+					}else{
+						jstree.select_node(child, true);
+					}
+					
+				}
+			});
+		};
+			
 		var debug = function(){};
 		
 		return{
