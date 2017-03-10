@@ -95,7 +95,8 @@ $(function(){
 			    	three_state : false,
 			    	cascade : ""
 			    },
-				contextmenu:{         
+				contextmenu:{
+					"select_node":false,
 				    "items": function($node) {
 				        var tree = $("#tree").jstree(true);
 				        return {
@@ -298,8 +299,6 @@ $(function(){
 				//アイコン付きドロップダウンリストの発動
 				'<script>nasca.nodeTree.startMsDropDown("' + selectedValue + '");</script>';
 			
-			console.log(node);
-			
 			return html;
 		};
 		
@@ -325,7 +324,6 @@ $(function(){
 		
 		var selectAllLeaf = function(node){
 			node.children_d.forEach(function(child, index){
-				console.log(jstree.get_node(child).children);
 				if(jstree.get_node(child).children.length === 0){
 					if(node.children_d.length - 1 === index){
 						jstree.select_node(child);

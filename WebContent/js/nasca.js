@@ -29,6 +29,7 @@ $(function(){
 			wWindow: function(){initialize(); return wWindow;},
 			hWindow: function(){initialize(); return hWindow;},
 			wNodeList: function(){initialize(); return wNodeList;},
+			hHeader: function(){initialize(); return hHeader;},
 			wMain: function(){initialize(); return wMain;},
 			hMain: function(){initialize(); return hMain;}
 		};

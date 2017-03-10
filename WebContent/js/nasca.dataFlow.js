@@ -38,12 +38,15 @@ $(function(){
 			svg = d3.select("body")
 				.append("svg")
 				.attr("id", "drawingPaper")
-				.attr("width", nasca.frame.wMain())
+//				.attr("width", nasca.frame.wMain())
+				.attr("width", nasca.frame.wWindow())
+				.attr("height", nasca.frame.hWindow())
 		        .attr("preserveAspectRatio", "xMidYMid meet")
 				.attr("pointer-events", "all")
 				.append("g")
 				.call(d3.behavior.zoom().scaleExtent([0.1, 5]).on("zoom", function(){
 					svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+					console.log(d3.event.translate);
 				}))
 				.on("dblclick.zoom", null)
 				.append("g")
@@ -57,6 +60,8 @@ $(function(){
 				.attr("width",5000)
 				.attr("height",4000)
 				.attr("fill","transparent");
+			
+			svg.attr("transform", "translate(" + nasca.frame.wNodeList()+ "," + nasca.frame.hHeader() + ")scale(1)");
 
 			//矢印定義（終端）
 			svg.append("svg:defs").selectAll("marker")
