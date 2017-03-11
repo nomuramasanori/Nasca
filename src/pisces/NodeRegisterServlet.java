@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -62,7 +63,8 @@ public class NodeRegisterServlet extends HttpServlet {
 					this.updateDependencyID(session, root.get("parentid").asText(), parent + root.get("id").asText());
 
 					session.commit();
-				}
+				}catch(PersistenceException ex){
+		        }
 				break;
 			case "update":
 				try(SqlSession session = SessionManager.createSession()){
