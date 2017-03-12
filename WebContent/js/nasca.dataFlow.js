@@ -38,7 +38,6 @@ $(function(){
 			svg = d3.select("body")
 				.append("svg")
 				.attr("id", "drawingPaper")
-//				.attr("width", nasca.frame.wMain())
 				.attr("width", nasca.frame.wWindow())
 				.attr("height", nasca.frame.hWindow())
 		        .attr("preserveAspectRatio", "xMidYMid meet")
@@ -46,7 +45,6 @@ $(function(){
 				.append("g")
 				.call(d3.behavior.zoom().scaleExtent([0.1, 5]).on("zoom", function(){
 					svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-					console.log(d3.event.translate);
 				}))
 				.on("dblclick.zoom", null)
 				.append("g")
@@ -60,8 +58,6 @@ $(function(){
 				.attr("width",5000)
 				.attr("height",4000)
 				.attr("fill","transparent");
-			
-			svg.attr("transform", "translate(" + nasca.frame.wNodeList()+ "," + nasca.frame.hHeader() + ")scale(1)");
 
 			//矢印定義（終端）
 			svg.append("svg:defs").selectAll("marker")
@@ -144,7 +140,6 @@ $(function(){
 			link.exit().remove();
 			
 			//ノード描画
-//			var img = svg.selectAll("image").data(nodes, function(d,i){return d.id;});
 			var img = svg.select("g.images").selectAll("image").data(nodes, function(d,i){return d.id;});
 			img
 				.attr("xlink:href", function(d){if(d.visible) return "./img/" + d["svg-file"]; else return null;}) //ノード用画像の設定
@@ -156,38 +151,6 @@ $(function(){
 				.attr("width", function(d){if(d.visible) return d.size; else return "0px";})
 				.attr("height", function(d){if(d.visible) return d.size; else return "0px";})
 				.attr("data-depth", function(d){return d.depth;})
-//				.on("mouseenter", function(d){
-//					var i,j;
-//					var flg = false;
-//					j = comments.length;
-//					for(i=0; i<j; i++){
-//						if(comments[i]["id"] === d.id){
-//							comments.splice(i,1);
-//							flg = true;
-//							break;
-//						}
-//					}
-//					if(!flg){
-//						comments.push(d);
-//					}
-//					drawComment();
-//				})
-//				.on("mouseleave", function(d){
-//					var i,j;
-//					var flg = false;
-//					j = comments.length;
-//					for(i=0; i<j; i++){
-//						if(comments[i]["id"] === d.id){
-//							comments.splice(i,1);
-//							flg = true;
-//							break;
-//						}
-//					}
-//					if(!flg){
-//						comments.push(d);
-//					}
-//					drawComment();
-//				})
 				.on("mousedown", function(d){
 					d3.event.stopPropagation();
 				})
@@ -238,7 +201,6 @@ $(function(){
 			img.order();
 						
 			//convex hull
-//		    var hulls = svg.select("g.hulls").selectAll("path.hull").data(groups, function(d,i){return d.key});
 			var hulls = svg.select("g.images").selectAll("path.hull").data(groups, function(d,i){return d.key});
 		    hulls
 			    .style("stroke-width", function(d){
@@ -284,8 +246,8 @@ $(function(){
 				.enter().append("text")
 				.attr("class", "nodeName")
 			    .text(function(d){if(d.visible) return d.name; else return null;})
-			    .attr("font-family", "sans-serif")
-			    .attr("font-size", "20px")
+			    .attr("font-family", "Noto Sans Japanese")
+			    .attr("font-size", "14px")
 			    .attr("fill", "darkgray");
 			text.exit().remove();
 			
@@ -380,13 +342,10 @@ $(function(){
 				img
 					.attr('x', function(d) { return d.x - d.size / 2; })
 					.attr('y', function(d) { return d.y - d.size / 2; });
-//					.attr('width', function(d){
-//						return d.collision ? 5 : d.size;
-//					});
 
 				text
-				    .attr('x', function(d) { return d.x; })
-				    .attr('y', function(d) { return d.y + 32; });
+				    .attr('x', function(d) { return d.x - d.size / 2; })
+				    .attr('y', function(d) { return d.y + d.size / 2 + 12; });
 			});	
 	
 			force.start();
@@ -576,31 +535,6 @@ $(function(){
 				val1.depth = depth1 + 1;
 			});
 		};
-		
-//		var drawComment = function(){
-//			var comment = svg.selectAll(".comment").data(comments);
-//			comment.enter().append("rect")
-//				.attr("class","comment")
-//				.attr("width",300)
-//				.attr("height",200)
-//				.attr("opacity",0.0)
-//				.attr("x",function(d){return d.x + 50})
-//				.attr("y",function(d){return d.y - 50});
-//			comment.exit().remove();
-//			
-//			var commenttext = svg.selectAll(".commentText").data(comments);
-//			commenttext.enter().append("text")
-//				.attr("class", "commentText")
-//				.attr("x", function(d) { return d.x + 70; })
-//			    .attr("y", function(d) { return d.y ; })
-//			    .text( function (d) { return d.remark; })
-//			    .attr("font-family", "sans-serif")
-//			    .attr("font-size", "20px")
-//			    .attr("fill", "white");
-//			commenttext.exit().remove();
-//			
-//			comment.transition().delay(300).duration(300).style("opacity", 0.5);
-//		};
 		
 		var setLinkStyleAndAttribute = function(selection){
 			selection
@@ -806,38 +740,6 @@ $(function(){
 		
 		//****************************************************************************************
 		// Move d to be adjacent to the cluster node.
-//		var cluster = function (alpha){
-//			return function(d) {
-//				if(d.parent === "root") return;
-//					
-//				var totalX = 0,
-//				totalY = 0,
-//				averageX = 0,
-//				averageY = 0,
-//				count = 0;
-//				
-//				//同一グループの座標の総和を求めます
-//				nodes.forEach(function(node){
-//					//前方一致検索
-//					var str = " " + d.parent;
-//					if (node.parent === d.parent || str.indexOf(" " + node.parent) !== -1) {
-//						totalX += node.x;
-//						totalY += node.y;
-//						count += 1;
-//					}
-//				});
-//				
-//				//中心座標
-//				averageX = totalX / count;
-//				averageY = totalY / count;
-//				
-//			    var x = d.x - averageX,
-//			        y = d.y - averageY;
-//
-//					 d.x -= x * alpha;
-//					 d.y -= y * alpha;
-//			};
-//		}
 		var cluster = function (alpha){
 			return function(d) {
 				var vx = 0;
@@ -851,9 +753,7 @@ $(function(){
 				nodes.forEach(function(node){
 					var names2 = node.id.split(".");
 					var commonLength, distance;
-//					if (names[0] === names2[0] && d.id !== node.id){
 					if (names[0] === names2[0]){
-//						distance = Math.abs(names.length - names2.length) + 1;
 						commonLength = nasca.utility.getCommonString(d.id, node.id).split(".").length;; 
 						distance = (names.length - commonLength) + (names2.length - commonLength) - 1;
 						
@@ -930,10 +830,6 @@ $(function(){
 			dx = x0 - result.x;
 			dy = y0 - result.y;
 			result.d = Math.sqrt(dx * dx + dy * dy);
-			
-//			//P(px,py)、Q(qx,qy)とするとQ方向にL伸ばした点R(rx,ry)の座標は
-//			result.x = (-100 * x0 + (result.d + 100) * result.x) / result.d;
-//			result.y = (-100 * y0 + (result.d + 100) * result.y) / result.d;
 			
 			return result;
 		};

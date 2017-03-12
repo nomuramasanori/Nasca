@@ -62,7 +62,6 @@ h1{
 	height:100%;
 	left:0px;
 	top:0px;
-/* 	height:calc(100% - 40px); */
 	background-color:white;
 	z-index: 0;
 /* 	background-image: url('../img/IMG_0536.jpg'); */
@@ -104,7 +103,11 @@ h1{
 /*jstreeのrootノード*/
 #jstree_demo_div{
 	position:relative;
-	left: -24px;
+	left: -18px;
+}
+.jstree-node {
+    font-size: 10pt;
+    font-family: 'Noto Sans Japanese';
 }
 #root_anchor>i.jstree-checkbox{
 	display:none;

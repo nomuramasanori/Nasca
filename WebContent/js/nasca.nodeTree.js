@@ -74,6 +74,9 @@ $(function(){
 			//ツリー生成
 			$("#jstree_demo_div").jstree({
 				core : {
+					"themes" : {
+						"variant" : "small"
+					},
 					"data" : data,
 					"dblclick_toggle" : false,
 					"check_callback" : function(operation, node, node_parent, node_position, more) {
@@ -319,6 +322,8 @@ $(function(){
 				jstree.deselect_node(child, true);
 			});
 			
+			//まれにイベントが発火しないのでselect⇒deselectでしのぐ
+			jstree.select_node(node.id, true);
 			jstree.deselect_node(node.id);
 		};
 		
@@ -326,6 +331,8 @@ $(function(){
 			node.children_d.forEach(function(child, index){
 				if(jstree.get_node(child).children.length === 0){
 					if(node.children_d.length - 1 === index){
+						//まれにイベントが発火しないのでselect⇒deselectでしのぐ
+						jstree.deselect_node(child, true);
 						jstree.select_node(child);
 					}else{
 						jstree.select_node(child, true);
