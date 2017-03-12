@@ -17,6 +17,7 @@
 <script type="text/javascript" src="js/nasca.nodeTree.js" charset="utf-8"></script>
 <script type="text/javascript" src="js/nasca.dataFlow.js" charset="utf-8"></script>
 <script type="text/javascript" src="js/nasca.utility.js" charset="utf-8"></script>
+<link rel="shortcut icon" href="img/favicon128.ico" >
 <link href="https://fonts.googleapis.com/css?family=Dancing+Script" rel="stylesheet">
 <link href="https://fonts.googleapis.com/earlyaccess/notosansjapanese.css" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/earlyaccess/hannari.css" rel="stylesheet" />
@@ -24,7 +25,7 @@
 <link rel="stylesheet" href="css/d3-context-menu.css" />
 <link rel="stylesheet" href="css/msdropdown/dd.css" />
 <link rel="stylesheet" href="css/pisces.css" />
-<title>Insert title here</title>
+<title>Nasca main</title>
 </head>
 <body>
 	<div id="header">

@@ -64,7 +64,10 @@ h1{
 	top:0px;
 	background-color:white;
 	z-index: 0;
-/* 	background-image: url('../img/IMG_0536.jpg'); */
+	background-image: url('../img/hummingbird.png');
+	background-repeat: no-repeat;
+	background-size:30% auto;
+	background-position:bottom right;
 }
 
 

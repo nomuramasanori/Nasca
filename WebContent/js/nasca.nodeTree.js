@@ -269,10 +269,6 @@ $(function(){
 			jstree.deselect_node(nodeID);
 		};
 		
-//		var escapePeriod = function(str){
-//			return str.split(".").join("\\.");
-//		};
-		
 		var generateHtmlNodeRegister = function(mode, node){
 			var parentid, parentname, id, name, selectedValue, remark;
 			
