@@ -45,9 +45,6 @@ public class NodeRegisterServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println(request.getRequestURI());
 		
-		int returnCode = 0;
-		String returnMessage = "";
-		
 		response.setContentType("text/html; charset=UTF-8");
 		PrintWriter out = response.getWriter();
 
@@ -79,8 +76,6 @@ public class NodeRegisterServlet extends HttpServlet {
 
 					session.commit();
 				}catch(PersistenceException ex){
-					returnCode = -1;
-					returnMessage = ex.getMessage();
 		        }
 				break;
 			case "update":
