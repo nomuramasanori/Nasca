@@ -2,6 +2,8 @@ package pisces;
 
 import java.util.List;
 import java.io.IOException;
+import java.io.PrintWriter;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -41,6 +45,17 @@ public class NodeRegisterServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println(request.getRequestURI());
 		
+		int returnCode = 0;
+		String returnMessage = "";
+		
+		response.setContentType("text/html; charset=UTF-8");
+		PrintWriter out = response.getWriter();
+
+		// JsonFactoryの生成
+		JsonFactory jsonFactory = new JsonFactory();
+		// JsonGeneratorの取得
+		JsonGenerator generator = jsonFactory.createGenerator(out);
+		
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode root = mapper.readTree((String)request.getParameter("parameter"));
 		
@@ -64,6 +79,8 @@ public class NodeRegisterServlet extends HttpServlet {
 
 					session.commit();
 				}catch(PersistenceException ex){
+					returnCode = -1;
+					returnMessage = ex.getMessage();
 		        }
 				break;
 			case "update":
@@ -100,7 +117,8 @@ public class NodeRegisterServlet extends HttpServlet {
 						root.get("remark").asText());
 					
 					session.commit();
-				}
+				}catch(PersistenceException ex){
+		        }
 				
 				break;
 			case "delete":
@@ -122,10 +140,20 @@ public class NodeRegisterServlet extends HttpServlet {
 					elementDAO.delete(session, parent + root.get("id").asText());
 					
 					session.commit();
-				}
+				}catch(PersistenceException ex){
+		        }
 				
 				break;
 		}
+		
+		//JSON生成■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+		generator.writeStartObject();
+		
+		//JSON生成の終了
+		generator.writeEndObject();
+		
+		//JSON書き出し
+		generator.flush();
 	}
 
 	private void updateDependencyID(SqlSession session, String originalID, String newID){
